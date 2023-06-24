@@ -17,7 +17,7 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
     {
         Debug.Log("StartSaving");
         _savingProcesss = StartCoroutine(SavePositionProcess());
-        _getCameraTextureProcess = StartCoroutine(SaveTextureProcess());
+        //_getCameraTextureProcess = StartCoroutine(SaveTextureProcess());
     }
 
     public void StopSaving()
@@ -35,9 +35,10 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
     {
         while(true)
         {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(2);
 
             _cameraPositions.Add((transform.localPosition, transform.localRotation));
+            TextureGetter.Instance.GetImageAsync();
         }
     }
 
@@ -47,8 +48,8 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
         while (true)
         {
             yield return new WaitForSeconds(3);
-
             TextureGetter.Instance.GetImageAsync();
+
         }
     }
 }
