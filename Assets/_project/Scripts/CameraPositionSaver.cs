@@ -35,7 +35,7 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
 
             _cameraPositions.Add((transform.localPosition, transform.localRotation));
 
-            TextureGetter.Instance.GetImageAsync();
+            TextureGetter.Instance.GetImageFromRnderTexture();
         }
     }
 }

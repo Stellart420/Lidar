@@ -17,6 +17,7 @@ public class ScanController : Singleton<ScanController>
     [SerializeField] private float _getScreenTime = .5f;
 
     [SerializeField] private Transform _cameraViewPrefab;
+    [SerializeField] private Material _nonWireframeMaterial;
 
     private bool _isScanning = false;
     private List<MeshData> _datas = new List<MeshData>();
@@ -154,7 +155,10 @@ public class ScanController : Singleton<ScanController>
         foreach (var meshFilter in _arMeshManager.meshes)
         {
             meshFilter.transform.SetParent(_modelViewParent, false);
-            meshFilter.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+
+            var renderer = meshFilter.GetComponent<MeshRenderer>();
+            renderer.material = _nonWireframeMaterial;
+            renderer.material.color = Random.ColorHSV();
         }
 
         foreach(var camPos in CameraPositionSaver.Instance.CameraPositions)
@@ -162,7 +166,7 @@ public class ScanController : Singleton<ScanController>
             var newCameraView = Instantiate(_cameraViewPrefab, _modelViewParent);
             newCameraView.localPosition = camPos.Item1;
             newCameraView.localRotation = camPos.Item2;
-            newCameraView.localScale = Vector3.one * 0.05f;
+            newCameraView.localScale = Vector3.one * 0.1f;
         }
 
         //yield return new WaitForSeconds(1f);
