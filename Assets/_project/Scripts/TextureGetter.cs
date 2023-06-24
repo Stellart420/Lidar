@@ -11,10 +11,17 @@ public class TextureGetter : Singleton<TextureGetter>
     [SerializeField] private ARCameraManager _cameraManager;
 
     private Texture2D _destinationTexture;
-    bool _isPerformingScreenGrab = false;
+    private bool _isPerformingScreenGrab = false;
+    private bool _isRotateEnabled = false;
+
     private void Start()
     {
         //Camera.onPostRender += OnPostRenderCallback;
+    }
+
+    public void EnableRotate()
+    {
+        _isRotateEnabled = true;
     }
 
     public void GetImageFromRnderTexture()
@@ -35,7 +42,7 @@ public class TextureGetter : Singleton<TextureGetter>
             StartCoroutine(ProcessImage(image));
 
             // It's safe to dispose the image before the async operation completes.
-            //image.Dispose();
+            image.Dispose();
         }
     }
 
@@ -50,13 +57,13 @@ public class TextureGetter : Singleton<TextureGetter>
             inputRect = new RectInt(0, 0, image.width, image.height),
 
             // Downsample by 2.
-            outputDimensions = new Vector2Int(image.width / 2, image.height / 2),
+            outputDimensions = new Vector2Int(Screen.width, Screen.height),
 
             // Color image format.
             outputFormat = TextureFormat.RGB24,
 
             // Flip across the Y axis.
-            //transformation = XRCpuImage.Transformation.MirrorY,
+            transformation = XRCpuImage.Transformation.MirrorY
         });
 
         // Wait for the conversion to complete.
@@ -87,6 +94,11 @@ public class TextureGetter : Singleton<TextureGetter>
         // Copy the image data into the texture.
         texture.LoadRawTextureData(rawData);
         texture.Apply();
+
+        if(_isRotateEnabled)
+        {
+            texture.RotateTexture(true);
+        }
 
         _showTextureImage.texture = texture;
 
