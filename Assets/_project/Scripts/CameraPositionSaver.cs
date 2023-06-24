@@ -35,7 +35,7 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
     {
         while(true)
         {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(0.5f);
 
             _cameraPositions.Add((transform.localPosition, transform.localRotation));
             TextureGetter.Instance.GetImageAsync();
