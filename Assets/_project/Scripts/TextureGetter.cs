@@ -57,7 +57,7 @@ public class TextureGetter : Singleton<TextureGetter>
             inputRect = new RectInt(0, 0, image.width, image.height),
 
             // Downsample by 2.
-            outputDimensions = new Vector2Int(Screen.width, Screen.height),
+            outputDimensions = new Vector2Int(image.width, image.height),
 
             // Color image format.
             outputFormat = TextureFormat.RGB24,
