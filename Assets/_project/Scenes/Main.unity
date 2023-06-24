@@ -2502,7 +2502,8 @@ MonoBehaviour:
   _getScreenTime: 1
   _cameraViewPrefab: {fileID: 7984424349870055198, guid: 242480e7978aaf64b92ac9062a7ac4aa,
     type: 3}
-  _nonWireframeMaterial: {fileID: 0}
+  _nonWireframeMaterial: {fileID: 2100000, guid: 9d286784c905d0446b5b12508f90eabe,
+    type: 2}
 --- !u!1 &1469391809
 GameObject:
   m_ObjectHideFlags: 0
