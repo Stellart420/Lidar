@@ -8,6 +8,7 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
 {
     private List<(Vector3, Quaternion)> _cameraPositions = new List<(Vector3, Quaternion)>();
     private Coroutine _savingProcesss;
+    private Coroutine _getCameraTextureProcess;
 
     public List<(Vector3, Quaternion)> CameraPositions => _cameraPositions;
 
@@ -15,7 +16,8 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
     public void StartSaving()
     {
         Debug.Log("StartSaving");
-        _savingProcesss = StartCoroutine(SavePsitionProcess());
+        _savingProcesss = StartCoroutine(SavePositionProcess());
+        _getCameraTextureProcess = StartCoroutine(SaveTextureProcess());
     }
 
     public void StopSaving()
@@ -23,19 +25,30 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
         if (_savingProcesss != null)
             StopCoroutine(_savingProcesss);
 
+        if (_getCameraTextureProcess != null)
+            StopCoroutine(_getCameraTextureProcess);
         Debug.Log("StopSaving");
     }
 
 
-    private IEnumerator SavePsitionProcess()
+    private IEnumerator SavePositionProcess()
     {
         while(true)
         {
             yield return new WaitForSeconds(1);
 
             _cameraPositions.Add((transform.localPosition, transform.localRotation));
+        }
+    }
 
-            TextureGetter.Instance.GetImageFromRnderTexture();
+
+    private IEnumerator SaveTextureProcess()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(3);
+
+            TextureGetter.Instance.GetImageAsync();
         }
     }
 }

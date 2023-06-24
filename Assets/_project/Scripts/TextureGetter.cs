@@ -14,7 +14,7 @@ public class TextureGetter : Singleton<TextureGetter>
     bool _isPerformingScreenGrab = false;
     private void Start()
     {
-        Camera.onPostRender += OnPostRenderCallback;
+        //Camera.onPostRender += OnPostRenderCallback;
     }
 
     public void GetImageFromRnderTexture()
@@ -56,7 +56,7 @@ public class TextureGetter : Singleton<TextureGetter>
             outputFormat = TextureFormat.RGB24,
 
             // Flip across the Y axis.
-            transformation = XRCpuImage.Transformation.MirrorY
+            //transformation = XRCpuImage.Transformation.MirrorY,
         });
 
         // Wait for the conversion to complete.
@@ -76,7 +76,7 @@ public class TextureGetter : Singleton<TextureGetter>
 
         // Image data is ready. Let's apply it to a Texture2D.
         var rawData = request.GetData<byte>();
-
+        Debug.Log($"Texture size: {rawData.Length / 1024} kb");
 
         var texture = new Texture2D(
                 request.conversionParams.outputDimensions.x,
