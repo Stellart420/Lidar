@@ -4,22 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 
-public class CameraPositionSaver : MonoBehaviour
+public class CameraPositionSaver : Singleton<CameraPositionSaver>
 {
-    public static CameraPositionSaver Instance;
-
-    [SerializeField] private RawImage _image;
-    [SerializeField] private ARCameraBackground _cameraBackground;
-
     private List<(Vector3, Quaternion)> _cameraPositions = new List<(Vector3, Quaternion)>();
     private Coroutine _savingProcesss;
 
     public List<(Vector3, Quaternion)> CameraPositions => _cameraPositions;
 
-    private void Awake()
-    {
-        Instance = this;
-    }
 
     public void StartSaving()
     {
@@ -42,9 +33,9 @@ public class CameraPositionSaver : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
 
-            _image.material.mainTexture = _cameraBackground.material.mainTexture;
-
             _cameraPositions.Add((transform.localPosition, transform.localRotation));
+
+            TextureGetter.Instance.GetImageAsync();
         }
     }
 }
