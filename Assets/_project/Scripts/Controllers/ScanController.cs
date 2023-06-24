@@ -16,6 +16,8 @@ public class ScanController : Singleton<ScanController>
     [SerializeField] private SimpleDebugConsole _console;
     [SerializeField] private float _getScreenTime = .5f;
 
+    [SerializeField] private Transform _cameraViewPrefab;
+
     private bool _isScanning = false;
     private List<MeshData> _datas = new List<MeshData>();
     private float _getScreenTimeTemp = 1f;
@@ -57,6 +59,7 @@ public class ScanController : Singleton<ScanController>
                 arMeshSubsystem.Start();
                 _isScanning = true;
                 //StartCoroutine(Scaning());
+                CameraPositionSaver.Instance.StartSaving();
                 Debug.Log("Scan START");
             }
         }
@@ -84,6 +87,8 @@ public class ScanController : Singleton<ScanController>
     {
         if (_isScanning)
         {
+            CameraPositionSaver.Instance.StopSaving();
+
             StartCoroutine(Stopping());
             //Camera.main.enabled = false;
             //_arMeshManager.enabled = false; // Отключаем ARMeshManager
@@ -149,6 +154,15 @@ public class ScanController : Singleton<ScanController>
         foreach (var meshFilter in _arMeshManager.meshes)
         {
             meshFilter.transform.SetParent(_modelViewParent, false);
+            meshFilter.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+        }
+
+        foreach(var camPos in CameraPositionSaver.Instance.CameraPositions)
+        {
+            var newCameraView = Instantiate(_cameraViewPrefab, _modelViewParent);
+            newCameraView.localPosition = camPos.Item1;
+            newCameraView.localRotation = camPos.Item2;
+            newCameraView.localScale = Vector3.one * 0.05f;
         }
 
         //yield return new WaitForSeconds(1f);
@@ -162,13 +176,13 @@ public class ScanController : Singleton<ScanController>
         foreach (var meshFilter in eventArgs.added)
         {
             //CreateMeshObject(meshFilter);
-            meshFilter.GetComponent<MeshRenderer>().material.color = Color.green;
+            //meshFilter.GetComponent<MeshRenderer>().material.color = Color.green;
         }
 
         foreach (var meshFilter in eventArgs.updated)
         {
             //UpdateMeshObject(meshFilter);
-            meshFilter.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+            //meshFilter.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
         }
 
         foreach (var meshFilter in eventArgs.removed)

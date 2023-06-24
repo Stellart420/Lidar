@@ -2,6 +2,8 @@
 
 public class ModelInteraction : MonoBehaviour
 {
+    [SerializeField] private Camera _camera;
+
     private bool isRotating;
     private float rotationSpeed = 1f;
 
@@ -69,15 +71,20 @@ public class ModelInteraction : MonoBehaviour
 
                 if (Mathf.Abs(deltaDistance) >= 0.1f)
                 {
-                    // Изменение масштаба на основе изменения расстояния
+                    //// Изменение масштаба на основе изменения расстояния
                     float scaleAmount = deltaDistance * scaleSpeed;
 
-                    var newScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
+                    //var newScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
 
-                    if (transform.localScale.x <= 0f && newScale.x <= 0f)
-                        transform.localScale = Vector3.one * 0.01f;
-                    else
-                        transform.localScale += newScale;
+                    //if (transform.localScale.x <= 0f && newScale.x <= 0f)
+                    //    transform.localScale = Vector3.one * 0.01f;
+                    //else
+                    //    transform.localScale += newScale;
+
+                    var newFov = _camera.fieldOfView + scaleAmount;
+                    newFov = Mathf.Clamp(newFov, 10f, 120f);
+                    _camera.fieldOfView = newFov;
+
                 }
                 // Перемещение
                 isMoving = true;
