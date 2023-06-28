@@ -8,6 +8,7 @@ using UnityEngine.XR.ARFoundation;
 
 public class ScanController : Singleton<ScanController>
 {
+    [SerializeField] private MeshSlicer _slicer;
     [SerializeField] private float _scanningTime = 5f;
     [SerializeField] private ARMeshManager _arMeshManager;
     [SerializeField] private ARCameraManager _arCameraManager;
@@ -173,6 +174,20 @@ public class ScanController : Singleton<ScanController>
         _arCameraManager.enabled = false;
         _modelViewer.gameObject.SetActive(true);
         UIController.Instance.ShowViewerPanel();
+
+        Debug.Log("WAIT 5 sec");
+        yield return new WaitForSeconds(5f);
+
+        var combinedObject = CombineMeshes(_arMeshManager.meshes);
+        foreach (var meshFilter in _arMeshManager.meshes)
+        {
+            meshFilter.gameObject.SetActive(false);
+        }
+
+        Debug.Log("WAIT 5 sec");
+        yield return new WaitForSeconds(5f);
+
+        _slicer.SliceMesh(combinedObject);
     }
 
     private void OnMeshesChanged(ARMeshesChangedEventArgs eventArgs)
@@ -323,5 +338,39 @@ public class ScanController : Singleton<ScanController>
         {
             mesh.GetComponent<MeshRenderer>().enabled = activate;
         }
+    }
+
+
+
+    private MeshFilter CombineMeshes(IList<MeshFilter> meshFilters)
+    {
+        Mesh[] meshes = meshFilters.Select(filter => filter.sharedMesh).ToArray();
+        // Создание нового игрового объекта
+        GameObject combinedObject = new GameObject("Combined Object");
+
+        // Добавление компонента MeshFilter
+        MeshFilter meshFilter = combinedObject.AddComponent<MeshFilter>();
+
+        // Создание и объединение мешей
+        Mesh combinedMesh = new Mesh();
+        CombineInstance[] combineInstances = new CombineInstance[meshes.Length];
+
+        for (int i = 0; i < meshes.Length; i++)
+        {
+            combineInstances[i].mesh = meshes[i];
+            combineInstances[i].transform = Matrix4x4.identity;
+        }
+
+        combinedMesh.CombineMeshes(combineInstances);
+
+        combinedMesh.RecalculateNormals();
+
+        // Установка объединенного меша
+        meshFilter.sharedMesh = combinedMesh;
+
+        // Добавление компонента MeshRenderer
+        combinedObject.AddComponent<MeshRenderer>();
+
+        return meshFilter;
     }
 }

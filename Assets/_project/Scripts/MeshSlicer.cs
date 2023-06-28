@@ -1,114 +1,226 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EzySlice;
+using System.Threading.Tasks;
 
 public class MeshSlicer : MonoBehaviour
 {
-    [SerializeField] private Transform _generatedMeshesRoot;
     [SerializeField] private MeshFilter _baseMesh;
-    [SerializeField] private MeshFilter _testMeshFilter;
 
-    [SerializeField] private int _maxTrisCount = 1000;
+    [SerializeField] private float _voxelSizeInMeters = 1;
 
     [ContextMenu("Slice")]
-    public void SliceMesh()
+    public List<GameObject> SliceMesh(MeshFilter meshForSlice)
     {
-        var baseMesh = _baseMesh.sharedMesh;
+        _baseMesh = meshForSlice;
 
-        var baseMeshVerts = baseMesh.vertices;
-        var baseMeshTris = baseMesh.triangles;
-        var baseMeshNormals = baseMesh.normals;
+        var transform = _baseMesh.transform;
+        var renderer = _baseMesh.GetComponent<MeshRenderer>();
+        var bounds = renderer.bounds;
+
+        var right = bounds.center + transform.right * bounds.size.x / 2;
+        var left = bounds.center + transform.right * -1 * bounds.size.x / 2;
+
+        var top = bounds.center + transform.up * bounds.size.y / 2;
+        var bottom = bounds.center + transform.up * -1 * bounds.size.y / 2;
+
+        var forward = bounds.center + transform.forward * bounds.size.z / 2;
+        var backward = bounds.center + transform.forward * -1 * bounds.size.z / 2;
 
 
-        var copiedTriangles = new List<Vector3>();
+        //var lS = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //lS.transform.position = left;
+        //lS.transform.localScale = Vector3.one * 0.05f;
+        //lS.GetComponent<MeshRenderer>().material.color = Color.blue;
 
-        for (int trianglNum = 0; trianglNum < baseMeshTris.Length; trianglNum += 3)
+        //var rS = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //rS.transform.position = right;
+        //rS.transform.localScale = Vector3.one * 0.05f;
+        //rS.GetComponent<MeshRenderer>().material.color = Color.red;
+
+
+        //var tS = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //tS.transform.position = top;
+        //tS.transform.localScale = Vector3.one * 0.1f;
+        //tS.GetComponent<MeshRenderer>().material.color = Color.red;
+
+        //var bS = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //bS.transform.position = bottom;
+        //bS.transform.localScale = Vector3.one * 0.1f;
+        //bS.GetComponent<MeshRenderer>().material.color = Color.blue;
+
+
+        //var fS = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //fS.transform.position = forward;
+        //fS.transform.localScale = Vector3.one * 0.2f;
+        //fS.GetComponent<MeshRenderer>().material.color = Color.red;
+
+
+        //var baS = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //baS.transform.position = backward;
+        //baS.transform.localScale = Vector3.one * 0.2f;
+        //baS.GetComponent<MeshRenderer>().material.color = Color.blue;
+
+        GameObject nextObjectForSlice = _baseMesh.gameObject;
+
+        #region X
+        int xAxisPlaneCounts = Mathf.Abs((int)(Vector3.Distance(left, right) / _voxelSizeInMeters)) + 1;
+        Debug.Log($"X parts: {xAxisPlaneCounts}");
+
+        List<GameObject> xSlicedMeshes = new List<GameObject>();
+
+        for (int panelIndex = 1; panelIndex < xAxisPlaneCounts; panelIndex++)
         {
-            copiedTriangles.Add(new Vector3(baseMeshTris[trianglNum], baseMeshTris[trianglNum + 1], baseMeshTris[trianglNum + 2]));
-        }
-
-        Dictionary<int, Vector3> copiedVerts = new Dictionary<int, Vector3>();
-
-        foreach(var triangle in copiedTriangles)
-        {
-            var intX = (int)triangle.x;
-            var intY = (int)triangle.y;
-            var intZ = (int)triangle.z;
+            var position = new Vector3(right.x - _voxelSizeInMeters * panelIndex, right.y, right.z);
+            //var posObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //posObj.transform.position = position;
+            //posObj.transform.localScale = Vector3.one * 0.1f;
 
 
-            if (!copiedVerts.ContainsKey(intX))
+            var sh = nextObjectForSlice.Slice(position, transform.right * -1);
+            var neededPart = sh.CreateLowerHull();
+            neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+            neededPart.name = $"X_{panelIndex - 1}";
+            xSlicedMeshes.Add(neededPart);
+
+            Destroy(nextObjectForSlice);
+
+            if (panelIndex + 1 == xAxisPlaneCounts)
             {
-                copiedVerts.Add(intX, baseMeshVerts[intX]);
+                neededPart = sh.CreateUpperHull();
+                neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                neededPart.name = $"X_{panelIndex}";
+                xSlicedMeshes.Add(neededPart);
+            }
+            else
+            {
+                nextObjectForSlice = sh.CreateUpperHull();
             }
 
-            if (!copiedVerts.ContainsKey(intY))
+        }
+
+        #endregion
+
+        #region Z
+
+        int zAxisPlaneCounts = Mathf.Abs((int)(Vector3.Distance(forward, backward) / _voxelSizeInMeters)) + 1;
+        Debug.Log($"Z parts: {zAxisPlaneCounts}");
+
+
+        List<GameObject> zSlicedMeshes = new List<GameObject>();
+
+        foreach (var xSliced in xSlicedMeshes)
+        {
+            nextObjectForSlice = xSliced;
+
+            for (int panelIndex = 1; panelIndex < zAxisPlaneCounts; panelIndex++)
             {
-                copiedVerts.Add(intY, baseMeshVerts[intY]);
-            }
+                var position = new Vector3(forward.x, forward.y, forward.z - panelIndex * _voxelSizeInMeters);
+                //var posObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                //posObj.transform.position = position;
+                //posObj.transform.localScale = Vector3.one * 0.1f;
 
-            if (!copiedVerts.ContainsKey(intZ))
+
+                var sh = nextObjectForSlice.Slice(position, transform.forward * -1);
+                if (sh == null)
+                {
+                    nextObjectForSlice.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                    nextObjectForSlice.name = $"{xSliced.name}_Z_{panelIndex - 1}";
+                    zSlicedMeshes.Add(nextObjectForSlice);
+
+                    break;
+                }
+                else
+                {
+                    var neededPart = sh.CreateLowerHull();
+                    neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                    neededPart.name = $"{xSliced.name}_Z_{panelIndex - 1}";
+                    zSlicedMeshes.Add(neededPart);
+
+                    Destroy(nextObjectForSlice);
+
+                    if (panelIndex + 1 == zAxisPlaneCounts)
+                    {
+                        neededPart = sh.CreateUpperHull();
+                        neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                        neededPart.name = $"{xSliced.name}_Z_{panelIndex}";
+                        zSlicedMeshes.Add(neededPart);
+                    }
+                    else
+                    {
+                        nextObjectForSlice = sh.CreateUpperHull();
+                    }
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region Y
+        int yAxisPlaneCounts = Mathf.Abs((int)(Vector3.Distance(bottom, top) / _voxelSizeInMeters)) + 1;
+        Debug.Log($"Y parts: {yAxisPlaneCounts}");
+
+
+        List<GameObject> ySlicedMeshes = new List<GameObject>();
+
+        foreach (var zSliced in zSlicedMeshes)
+        {
+            nextObjectForSlice = zSliced;
+
+            for (int panelIndex = 1; panelIndex < yAxisPlaneCounts; panelIndex++)
             {
-                copiedVerts.Add(intZ, baseMeshVerts[intZ]);
+                var position = new Vector3(top.x, top.y - _voxelSizeInMeters * panelIndex, top.z);
+                //var posObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                //posObj.transform.position = position;
+                //posObj.transform.localScale = Vector3.one * 0.1f;
+
+
+                var sh = nextObjectForSlice.Slice(position, transform.up * -1);
+                if (sh == null)
+                {
+                    nextObjectForSlice.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                    nextObjectForSlice.name = $"{zSliced.name}_Y_{panelIndex - 1}";
+                    ySlicedMeshes.Add(nextObjectForSlice);
+                    Debug.Log("Zbreak");
+                    break;
+                }
+                else
+                {
+                    var neededPart = sh.CreateLowerHull();
+                    neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                    neededPart.name = $"{zSliced.name}_Y_{panelIndex - 1}";
+                    ySlicedMeshes.Add(neededPart);
+
+                    Destroy(nextObjectForSlice);
+
+                    if (panelIndex + 1 == yAxisPlaneCounts)
+                    {
+                        neededPart = sh.CreateUpperHull();
+                        neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                        neededPart.name = $"{zSliced.name}_Y_{panelIndex}";
+                        ySlicedMeshes.Add(neededPart);
+                    }
+                    else
+                    {
+                        nextObjectForSlice = sh.CreateUpperHull();
+                    }
+                }
+
             }
         }
 
-        List<Vector3> realCopiedVerts = new List<Vector3>(); // verts
-        int realCopiedVertsIndex = 0;
-
-        Dictionary<int, int> vertsIdRestrucs = new Dictionary<int, int>();
-
-        foreach(var copVert in copiedVerts)
-        {
-            realCopiedVerts.Add(copVert.Value);
-            vertsIdRestrucs.Add(copVert.Key, realCopiedVertsIndex);
-            ++realCopiedVertsIndex;
-        }
-
-        var realCopiedTriangles = new List<Vector3>();
-
-        foreach(var preTriangle in copiedTriangles)
-        {
-            var intX = (int)preTriangle.x;
-            var intY = (int)preTriangle.y;
-            var intZ = (int)preTriangle.z;
 
 
-            realCopiedTriangles.Add(new Vector3(vertsIdRestrucs[intX], vertsIdRestrucs[intY], vertsIdRestrucs[intZ]));
-        }
-
-        Vector3[] verts = realCopiedVerts.ToArray();
-        int[] tris = new int[realCopiedTriangles.Count * 3];
+        #endregion
 
 
-        for(var trNum = 0; trNum < realCopiedTriangles.Count; trNum += 3)
-        {
-            tris[trNum] = (int)realCopiedTriangles[trNum].x;
-            tris[trNum+1] = (int)realCopiedTriangles[trNum].y;
-            tris[trNum+2] = (int)realCopiedTriangles[trNum].z;
-        }
+        Debug.Log("DONE");
 
-        var newMesh = new Mesh();
-        newMesh.vertices = verts;
-        newMesh.triangles = tris;
-        newMesh.RecalculateNormals();
 
-        _testMeshFilter.sharedMesh = newMesh;
+        return ySlicedMeshes;
     }
 
-    [ContextMenu("Counts")]
-    public void ShowCounts()
-    {
-        var baseMesh = _baseMesh.sharedMesh;
 
-        var baseMeshVerts = baseMesh.vertices;
-        var baseMeshTris = baseMesh.triangles;
-        var baseMeshNormals = baseMesh.normals;
-
-        //Debug.Log($"{baseMeshVerts.Length}__{baseMeshTris.Length}");
-
-        foreach(var v in baseMeshVerts)
-        {
-            Debug.Log($"{v}");
-        }
-    }
 }
