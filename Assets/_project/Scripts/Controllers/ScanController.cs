@@ -8,6 +8,7 @@ using UnityEngine.XR.ARFoundation;
 
 public class ScanController : Singleton<ScanController>
 {
+    [SerializeField] private Camera _checkMeshCamera;
     [SerializeField] private MeshSlicer _slicer;
     [SerializeField] private float _scanningTime = 5f;
     [SerializeField] private ARMeshManager _arMeshManager;
@@ -164,13 +165,15 @@ public class ScanController : Singleton<ScanController>
         }
 
         var cameraDatas = CameraPositionSaver.Instance.SavedCameraData.Values.ToList();
+        _checkMeshCamera.transform.parent = _modelViewParent;
+
         foreach (var camPos in cameraDatas)
         {
             if (camPos.Texture == null)
                 continue;
 
             var newCameraView = Instantiate(_cameraViewPrefab, _modelViewParent);
-            newCameraView.localPosition = camPos.Position;
+            newCameraView.localPosition =  camPos.Position;
             newCameraView.localRotation = camPos.Rotation;
             newCameraView.localScale = Vector3.one * 0.1f;
         }
@@ -207,6 +210,17 @@ public class ScanController : Singleton<ScanController>
         //    sMesh.transform.SetParent(_modelViewParent, false);
         //}
     }
+
+    private bool IsMeshInCamera(MeshFilter mFilter, Vector3 camPosition, Quaternion camRotation)
+    {
+        _checkMeshCamera.transform.position = camPosition;
+        _checkMeshCamera.transform.rotation = camRotation;
+
+        var camPlanes = GeometryUtility.CalculateFrustumPlanes(_checkMeshCamera);
+
+        return false;
+    }
+
 
     [ContextMenu("TestStop")]
     public void TestStop()

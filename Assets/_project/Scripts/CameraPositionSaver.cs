@@ -12,6 +12,11 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
     public Dictionary<int, ScanData> SavedCameraData = new Dictionary<int, ScanData>();
     private int _currentId = 0;
 
+    private void Start()
+    {
+        TextureGetter.Instance.Initialize(OnTextureGetted);
+    }
+
     public void StartSaving()
     {
         Debug.Log("StartSaving");
@@ -36,9 +41,16 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
         {
             yield return new WaitForSeconds(1f);
 
-            SavedCameraData.Add(_currentId, new ScanData() { Position = transform.localPosition, Rotation = transform.localRotation });
-            TextureGetter.Instance.GetImageAsync(SavedCameraData, _currentId);
+            SavedCameraData.Add(_currentId, new ScanData() {Id = _currentId, Position = transform.position, Rotation = transform.rotation });
+            TextureGetter.Instance.GetImageAsync(_currentId);
+
+            ++_currentId;
         }
+    }
+
+    private void OnTextureGetted(Texture2D texture, int id)
+    {
+        SavedCameraData[id].Texture = texture;
     }
 
 }

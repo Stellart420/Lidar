@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,11 @@ public class TextureGetter : Singleton<TextureGetter>
     private Texture2D _destinationTexture;
     private bool _isPerformingScreenGrab = false;
     private bool _isRotateEnabled = false;
+    private Action<Texture2D, int> _onTextureGetted;
+    public void Initialize(Action<Texture2D, int> onTextureGetted)
+    {
+        _onTextureGetted = onTextureGetted;
+    }
 
     private void Start()
     {
@@ -32,21 +38,21 @@ public class TextureGetter : Singleton<TextureGetter>
         _isPerformingScreenGrab = true;
     }
 
-    public void GetImageAsync(Dictionary<int, ScanData> target, int id)
+    public void GetImageAsync(int id)
     {
         // Get information about the device camera image.
         if (_cameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
         {
             // If successful, launch a coroutine that waits for the image
             // to be ready, then apply it to a texture.
-            StartCoroutine(ProcessImage(image, target, id));
+            StartCoroutine(ProcessImage(image, id));
 
             // It's safe to dispose the image before the async operation completes.
             image.Dispose();
         }
     }
 
-    IEnumerator ProcessImage(XRCpuImage image, Dictionary<int, ScanData> target, int id)
+    IEnumerator ProcessImage(XRCpuImage image, int id)
     {
         //Debug.Log($"Image: {image.width}/{image.height}. Camera: {Camera.main.pixelWidth}/{Camera.main.pixelHeight}");
 
@@ -95,16 +101,16 @@ public class TextureGetter : Singleton<TextureGetter>
         texture.LoadRawTextureData(rawData);
         texture.Apply();
 
-        if(_isRotateEnabled)
-        {
-            texture = texture.RotateTexture(false);
-        }
+
+        texture = texture.RotateTexture(false);
+
 
         _showTextureImage.texture = texture;
-        target[id].Texture = texture;
         // Need to dispose the request to delete resources associated
         // with the request, including the raw data.
         request.Dispose();
+
+        _onTextureGetted?.Invoke(texture, id);
     }
 
 
