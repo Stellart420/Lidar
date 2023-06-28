@@ -129,6 +129,7 @@ public class ScanController : Singleton<ScanController>
     IEnumerator Stopping()
     {
         yield return new WaitForSeconds(1);
+        Reporter.Instance.doShow();
 
         Debug.Log(_arMeshManager == null);
         //UIController.Instance.HideUI();
@@ -198,6 +199,7 @@ public class ScanController : Singleton<ScanController>
         Debug.Log("step 6");
 
         var slicedMeshes = _slicer.SliceMesh(combinedObject);
+        Debug.Log($"Mesh count: {slicedMeshes.Count}");
 
         foreach (var sMesh in slicedMeshes)
         {
@@ -214,26 +216,26 @@ public class ScanController : Singleton<ScanController>
             if (slicedMeshes.Count == 0)
                 break;
 
-            var handledMeshNums = new List<int>();
+            int handledCount = 0;
             for (int i = 0; i < slicedMeshes.Count; ++i)
             {
+                if (slicedMeshes[i].name.StartsWith("Handled"))
+                    continue;
+
                 var mf = slicedMeshes[i].GetComponent<MeshFilter>();
                 if (IsMeshInCamera(mf, camData.Position, camData.Rotation))
                 {
-                    handledMeshNums.Add(i);
-
                     mf.GenerateUV(_checkMeshCamera);
                     var render = mf.GetComponent<MeshRenderer>();
                     render.material.color = Color.white;
                     render.material.SetTexture("_BaseMap", camData.Texture);
+
+                    mf.name = $"Handled_{mf.name}";
+                    ++handledCount;
                 }
             }
 
-            foreach(var handledNum in handledMeshNums)
-            {
-                handledMeshes.Add(slicedMeshes[handledNum]);
-                slicedMeshes.RemoveAt(handledNum);
-            }
+            Debug.Log($"CamData {camData.Id}: {handledCount} handled");
         }
     }
 

@@ -62,7 +62,7 @@ public class Images
 //or your finger (touch and drag) on the screen to show all these logs
 //no coding is required 
 
-public class Reporter : MonoBehaviour
+public class Reporter : Singleton<Reporter>
 {
 
 	public enum _LogType
@@ -287,6 +287,8 @@ public class Reporter : MonoBehaviour
 
 	void Awake()
 	{
+		base.Awake();
+
 		if (!Initialized)
 			Initialize();
 	}
@@ -1763,7 +1765,7 @@ public class Reporter : MonoBehaviour
 	float lastUpdate2 = 0;
 #endif
 
-	void doShow()
+	public void doShow()
 	{
 		show = true;
 		currentView = ReportView.Logs;
