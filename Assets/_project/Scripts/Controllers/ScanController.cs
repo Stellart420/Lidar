@@ -133,7 +133,7 @@ public class ScanController : Singleton<ScanController>
 
         Debug.Log(_arMeshManager == null);
         //UIController.Instance.HideUI();
-        if(_arMeshManager != null)
+        if (_arMeshManager != null)
             _arMeshManager.enabled = false; // Отключаем ARMeshManager
 
         //XRMeshSubsystem arMeshSubsystem = (XRMeshSubsystem)_arMeshManager.subsystem;
@@ -198,7 +198,7 @@ public class ScanController : Singleton<ScanController>
 
         Debug.Log("step 6");
 
-        var slicedMeshes = _slicer.SliceMesh(combinedObject);
+        var slicedMeshes = _slicer.SliceMesh(combinedObject, _nonWireframeMaterial);
         Debug.Log($"Mesh count: {slicedMeshes.Count}");
 
         foreach (var sMesh in slicedMeshes)
@@ -227,6 +227,7 @@ public class ScanController : Singleton<ScanController>
                 {
                     mf.GenerateUV(_checkMeshCamera);
                     var render = mf.GetComponent<MeshRenderer>();
+                    render.material = _nonWireframeMaterial;
                     render.material.color = Color.white;
                     render.material.SetTexture("_BaseMap", camData.Texture);
 

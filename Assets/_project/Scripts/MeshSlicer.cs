@@ -11,7 +11,7 @@ public class MeshSlicer : MonoBehaviour
     [SerializeField] private float _voxelSizeInMeters = 1;
 
     [ContextMenu("Slice")]
-    public List<GameObject> SliceMesh(MeshFilter meshForSlice)
+    public List<GameObject> SliceMesh(MeshFilter meshForSlice, Material material)
     {
         _baseMesh = meshForSlice;
 
@@ -189,7 +189,9 @@ public class MeshSlicer : MonoBehaviour
                 var sh = nextObjectForSlice.Slice(position, transform.up * -1);
                 if (sh == null)
                 {
-                    nextObjectForSlice.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                    var rend = nextObjectForSlice.GetComponent<MeshRenderer>();
+                    rend.material = material;
+                    rend.material.color = Random.ColorHSV();
                     nextObjectForSlice.name = $"{zSliced.name}_Y_{panelIndex - 1}";
                     ySlicedMeshes.Add(nextObjectForSlice);
                     Debug.Log("Zbreak");
@@ -198,7 +200,9 @@ public class MeshSlicer : MonoBehaviour
                 else
                 {
                     var neededPart = sh.CreateLowerHull();
-                    neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                    var rend = neededPart.GetComponent<MeshRenderer>();
+                    rend.material = material;
+                    rend.material.color = Random.ColorHSV();
                     neededPart.name = $"{zSliced.name}_Y_{panelIndex - 1}";
                     ySlicedMeshes.Add(neededPart);
 
@@ -207,7 +211,9 @@ public class MeshSlicer : MonoBehaviour
                     if (panelIndex + 1 == yAxisPlaneCounts)
                     {
                         neededPart = sh.CreateUpperHull();
-                        neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                        var rend1 = neededPart.GetComponent<MeshRenderer>();
+                        rend1.material = material;
+                        rend1.material.color = Random.ColorHSV(); 
                         neededPart.name = $"{zSliced.name}_Y_{panelIndex}";
                         ySlicedMeshes.Add(neededPart);
                     }
