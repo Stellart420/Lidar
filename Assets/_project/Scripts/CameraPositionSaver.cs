@@ -6,12 +6,11 @@ using UnityEngine.XR.ARFoundation;
 
 public class CameraPositionSaver : Singleton<CameraPositionSaver>
 {
-    private List<(Vector3, Quaternion)> _cameraPositions = new List<(Vector3, Quaternion)>();
     private Coroutine _savingProcesss;
     private Coroutine _getCameraTextureProcess;
 
-    public List<(Vector3, Quaternion)> CameraPositions => _cameraPositions;
-
+    public Dictionary<int, ScanData> SavedCameraData = new Dictionary<int, ScanData>();
+    private int _currentId = 0;
 
     public void StartSaving()
     {
@@ -35,21 +34,19 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
     {
         while(true)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(1f);
 
-            _cameraPositions.Add((transform.localPosition, transform.localRotation));
-            TextureGetter.Instance.GetImageAsync();
+            SavedCameraData.Add(_currentId, new ScanData() { Position = transform.localPosition, Rotation = transform.localRotation });
+            TextureGetter.Instance.GetImageAsync(SavedCameraData, _currentId);
         }
     }
 
+}
 
-    private IEnumerator SaveTextureProcess()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(3);
-            TextureGetter.Instance.GetImageAsync();
-
-        }
-    }
+public class ScanData
+{
+    public int Id;
+    public Vector3 Position;
+    public Quaternion Rotation;
+    public Texture2D Texture;
 }

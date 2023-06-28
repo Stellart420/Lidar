@@ -156,18 +156,22 @@ public class ScanController : Singleton<ScanController>
 
         foreach (var meshFilter in _arMeshManager.meshes)
         {
-            //meshFilter.transform.SetParent(_modelViewParent, false);
+            meshFilter.transform.SetParent(_modelViewParent, false);
 
             var renderer = meshFilter.GetComponent<MeshRenderer>();
             renderer.material = _nonWireframeMaterial;
             renderer.material.color = Random.ColorHSV();
         }
 
-        foreach(var camPos in CameraPositionSaver.Instance.CameraPositions)
+        var cameraDatas = CameraPositionSaver.Instance.SavedCameraData.Values.ToList();
+        foreach (var camPos in cameraDatas)
         {
+            if (camPos.Texture == null)
+                continue;
+
             var newCameraView = Instantiate(_cameraViewPrefab, _modelViewParent);
-            newCameraView.localPosition = camPos.Item1;
-            newCameraView.localRotation = camPos.Item2;
+            newCameraView.localPosition = camPos.Position;
+            newCameraView.localRotation = camPos.Rotation;
             newCameraView.localScale = Vector3.one * 0.1f;
         }
 
@@ -194,6 +198,14 @@ public class ScanController : Singleton<ScanController>
         {
             sMesh.transform.SetParent(_modelViewParent, false);
         }
+
+        Debug.Log("WAIT 10 sec");
+        //yield return new WaitForSeconds(10f);
+
+        //foreach (var sMesh in slicedMeshes)
+        //{
+        //    sMesh.transform.SetParent(_modelViewParent, false);
+        //}
     }
 
     [ContextMenu("TestStop")]

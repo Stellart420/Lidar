@@ -32,21 +32,21 @@ public class TextureGetter : Singleton<TextureGetter>
         _isPerformingScreenGrab = true;
     }
 
-    public void GetImageAsync()
+    public void GetImageAsync(Dictionary<int, ScanData> target, int id)
     {
         // Get information about the device camera image.
         if (_cameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
         {
             // If successful, launch a coroutine that waits for the image
             // to be ready, then apply it to a texture.
-            StartCoroutine(ProcessImage(image));
+            StartCoroutine(ProcessImage(image, target, id));
 
             // It's safe to dispose the image before the async operation completes.
             image.Dispose();
         }
     }
 
-    IEnumerator ProcessImage(XRCpuImage image)
+    IEnumerator ProcessImage(XRCpuImage image, Dictionary<int, ScanData> target, int id)
     {
         //Debug.Log($"Image: {image.width}/{image.height}. Camera: {Camera.main.pixelWidth}/{Camera.main.pixelHeight}");
 
@@ -83,7 +83,7 @@ public class TextureGetter : Singleton<TextureGetter>
 
         // Image data is ready. Let's apply it to a Texture2D.
         var rawData = request.GetData<byte>();
-        Debug.Log($"Texture size: {rawData.Length / 1024} kb");
+        //Debug.Log($"Texture size: {rawData.Length / 1024} kb");
 
         var texture = new Texture2D(
                 request.conversionParams.outputDimensions.x,
@@ -97,11 +97,11 @@ public class TextureGetter : Singleton<TextureGetter>
 
         if(_isRotateEnabled)
         {
-            texture = texture.RotateTexture(true);
+            texture = texture.RotateTexture(false);
         }
 
         _showTextureImage.texture = texture;
-
+        target[id].Texture = texture;
         // Need to dispose the request to delete resources associated
         // with the request, including the raw data.
         request.Dispose();
