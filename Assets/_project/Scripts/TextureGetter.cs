@@ -48,7 +48,7 @@ public class TextureGetter : Singleton<TextureGetter>
 
     IEnumerator ProcessImage(XRCpuImage image)
     {
-        Debug.Log($"Image: {image.width}/{image.height}. Camera: {Camera.main.pixelWidth}/{Camera.main.pixelHeight}");
+        //Debug.Log($"Image: {image.width}/{image.height}. Camera: {Camera.main.pixelWidth}/{Camera.main.pixelHeight}");
 
         // Create the async conversion request.
         var request = image.ConvertAsync(new XRCpuImage.ConversionParams
@@ -97,7 +97,7 @@ public class TextureGetter : Singleton<TextureGetter>
 
         if(_isRotateEnabled)
         {
-            texture.RotateTexture(true);
+            texture = texture.RotateTexture(true);
         }
 
         _showTextureImage.texture = texture;

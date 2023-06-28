@@ -25,6 +25,7 @@ public class ScanController : Singleton<ScanController>
     private float _getScreenTimeTemp = 1f;
     private Coroutine _scanning;
 
+    [SerializeField] private MeshFilter[] TestMeshes;
 
     protected override void Awake()
     {
@@ -127,7 +128,7 @@ public class ScanController : Singleton<ScanController>
 
     IEnumerator Stopping()
     {
-        yield return new WaitForEndOfFrame();
+        yield return new WaitForSeconds(1);
         //UIController.Instance.HideUI();
         _arMeshManager.enabled = false; // Отключаем ARMeshManager
 
@@ -155,7 +156,7 @@ public class ScanController : Singleton<ScanController>
 
         foreach (var meshFilter in _arMeshManager.meshes)
         {
-            meshFilter.transform.SetParent(_modelViewParent, false);
+            //meshFilter.transform.SetParent(_modelViewParent, false);
 
             var renderer = meshFilter.GetComponent<MeshRenderer>();
             renderer.material = _nonWireframeMaterial;
@@ -187,7 +188,86 @@ public class ScanController : Singleton<ScanController>
         Debug.Log("WAIT 5 sec");
         yield return new WaitForSeconds(5f);
 
-        _slicer.SliceMesh(combinedObject);
+        var slicedMeshes = _slicer.SliceMesh(combinedObject);
+
+        foreach (var sMesh in slicedMeshes)
+        {
+            sMesh.transform.SetParent(_modelViewParent, false);
+        }
+    }
+
+    [ContextMenu("TestStop")]
+    public void TestStop()
+    {
+        StartCoroutine(StoppingTest());
+    }
+
+    IEnumerator StoppingTest()
+    {
+        yield return new WaitForSeconds(1);
+        //UIController.Instance.HideUI();
+        //_arMeshManager.enabled = false; // Отключаем ARMeshManager
+
+        //XRMeshSubsystem arMeshSubsystem = (XRMeshSubsystem)_arMeshManager.subsystem;
+
+        //if (arMeshSubsystem != null)
+        //{
+        //    arMeshSubsystem.Stop();
+        //    _isScanning = false;
+        //}
+
+        //foreach (var meshFilter in _arMeshManager.meshes)
+        //{
+        //    meshFilter.GetComponent<MeshRenderer>().enabled = false;
+        //}
+        //yield return new WaitForSeconds(1f);
+
+        //var screenShot = ScreenCapture.CaptureScreenshotAsTexture();
+        //yield return new WaitForSeconds(1f);
+        //foreach (var filter in _arMeshManager.meshes)
+        //{
+        //    filter.GetComponent<MeshRenderer>().enabled = true;
+        //    filter.TextureMesh(screenShot);
+        //}
+
+        foreach (var meshFilter in TestMeshes)
+        {
+            var renderer = meshFilter.GetComponent<MeshRenderer>();
+            renderer.material = _nonWireframeMaterial;
+            renderer.material.color = Random.ColorHSV();
+        }
+
+        //foreach (var camPos in CameraPositionSaver.Instance.CameraPositions)
+        //{
+        //    var newCameraView = Instantiate(_cameraViewPrefab, _modelViewParent);
+        //    newCameraView.localPosition = camPos.Item1;
+        //    newCameraView.localRotation = camPos.Item2;
+        //    newCameraView.localScale = Vector3.one * 0.1f;
+        //}
+
+        //yield return new WaitForSeconds(1f);
+        _arCameraManager.enabled = false;
+        _modelViewer.gameObject.SetActive(true);
+        UIController.Instance.ShowViewerPanel();
+
+        Debug.Log("WAIT 5 sec");
+        yield return new WaitForSeconds(5f);
+
+        var combinedObject = CombineMeshes(TestMeshes);
+        foreach (var meshFilter in TestMeshes)
+        {
+            meshFilter.gameObject.SetActive(false);
+        }
+
+        Debug.Log("WAIT 5 sec");
+        yield return new WaitForSeconds(5f);
+
+        var slicedMeshes = _slicer.SliceMesh(combinedObject);
+
+        foreach(var sMesh in slicedMeshes)
+        {
+            sMesh.transform.SetParent(_modelViewParent, false);
+        }
     }
 
     private void OnMeshesChanged(ARMeshesChangedEventArgs eventArgs)
@@ -344,33 +424,32 @@ public class ScanController : Singleton<ScanController>
 
     private MeshFilter CombineMeshes(IList<MeshFilter> meshFilters)
     {
-        Mesh[] meshes = meshFilters.Select(filter => filter.sharedMesh).ToArray();
-        // Создание нового игрового объекта
-        GameObject combinedObject = new GameObject("Combined Object");
+        CombineInstance[] combine = new CombineInstance[meshFilters.Count];
 
-        // Добавление компонента MeshFilter
-        MeshFilter meshFilter = combinedObject.AddComponent<MeshFilter>();
-
-        // Создание и объединение мешей
-        Mesh combinedMesh = new Mesh();
-        CombineInstance[] combineInstances = new CombineInstance[meshes.Length];
-
-        for (int i = 0; i < meshes.Length; i++)
+        int i = 0;
+        while (i < meshFilters.Count)
         {
-            combineInstances[i].mesh = meshes[i];
-            combineInstances[i].transform = Matrix4x4.identity;
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+
+            i++;
         }
 
-        combinedMesh.CombineMeshes(combineInstances);
+        Mesh mesh = new Mesh();
+        mesh.CombineMeshes(combine);
+        var go = new GameObject("Combined");
+        go.transform.parent = _modelViewParent;
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localScale = Vector3.one;
+        go.transform.localRotation = Quaternion.identity;
 
-        combinedMesh.RecalculateNormals();
+        var resultFilter = go.AddComponent<MeshFilter>();
+        resultFilter.sharedMesh = mesh;
 
-        // Установка объединенного меша
-        meshFilter.sharedMesh = combinedMesh;
+        var renderer = go.AddComponent<MeshRenderer>();
+        renderer.material = _nonWireframeMaterial;
 
-        // Добавление компонента MeshRenderer
-        combinedObject.AddComponent<MeshRenderer>();
-
-        return meshFilter;
+        return resultFilter;
     }
 }
