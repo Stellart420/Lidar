@@ -355,7 +355,7 @@ public class ScanController : Singleton<ScanController>
         Debug.Log("WAIT 5 sec");
         yield return new WaitForSeconds(5f);
 
-        var slicedMeshes = _slicer.SliceMesh(combinedObject);
+        var slicedMeshes = _slicer.SliceMesh(combinedObject, _nonWireframeMaterial);
 
         foreach (var sMesh in slicedMeshes)
         {
