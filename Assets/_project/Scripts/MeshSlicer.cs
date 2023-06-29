@@ -77,32 +77,25 @@ public class MeshSlicer : MonoBehaviour
             //posObj.transform.position = position;
             //posObj.transform.localScale = Vector3.one * 0.1f;
 
-            Debug.Log("1");
             var sh = nextObjectForSlice.Slice(position, transform.right * -1);
             var neededPart = sh.CreateLowerHull();
-            Debug.Log("2");
 
             neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
             neededPart.name = $"X_{panelIndex - 1}";
             xSlicedMeshes.Add(neededPart);
-            Debug.Log("3");
 
             Destroy(nextObjectForSlice);
 
             if (panelIndex + 1 == xAxisPlaneCounts)
             {
-                Debug.Log("4");
 
                 neededPart = sh.CreateUpperHull();
                 neededPart.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
                 neededPart.name = $"X_{panelIndex}";
                 xSlicedMeshes.Add(neededPart);
-                Debug.Log("5");
             }
             else
             {
-                Debug.Log("6");
-
                 nextObjectForSlice = sh.CreateUpperHull();
             }
 
@@ -111,7 +104,6 @@ public class MeshSlicer : MonoBehaviour
         #endregion
 
         #region Z
-        Debug.Log("7");
 
         int zAxisPlaneCounts = Mathf.Abs((int)(Vector3.Distance(forward, backward) / _voxelSizeInMeters)) + 1;
         Debug.Log($"Z parts: {zAxisPlaneCounts}");
@@ -134,11 +126,15 @@ public class MeshSlicer : MonoBehaviour
                 var sh = nextObjectForSlice.Slice(position, transform.forward * -1);
                 if (sh == null)
                 {
-                    nextObjectForSlice.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
-                    nextObjectForSlice.name = $"{xSliced.name}_Z_{panelIndex - 1}";
-                    zSlicedMeshes.Add(nextObjectForSlice);
-
-                    break;
+                    if (panelIndex + 1 == zAxisPlaneCounts)
+                    {
+                        nextObjectForSlice.GetComponent<MeshRenderer>().material.color = Random.ColorHSV();
+                        nextObjectForSlice.name = $"{xSliced.name}_Z_{panelIndex - 1}";
+                        zSlicedMeshes.Add(nextObjectForSlice);
+                        break;
+                    }
+                    else
+                        continue;
                 }
                 else
                 {
@@ -168,6 +164,7 @@ public class MeshSlicer : MonoBehaviour
         #endregion
 
         #region Y
+        
         int yAxisPlaneCounts = Mathf.Abs((int)(Vector3.Distance(bottom, top) / _voxelSizeInMeters)) + 1;
         Debug.Log($"Y parts: {yAxisPlaneCounts}");
 
@@ -189,13 +186,16 @@ public class MeshSlicer : MonoBehaviour
                 var sh = nextObjectForSlice.Slice(position, transform.up * -1);
                 if (sh == null)
                 {
-                    var rend = nextObjectForSlice.GetComponent<MeshRenderer>();
-                    rend.material = material;
-                    rend.material.color = Random.ColorHSV();
-                    nextObjectForSlice.name = $"{zSliced.name}_Y_{panelIndex - 1}";
-                    ySlicedMeshes.Add(nextObjectForSlice);
-                    Debug.Log("Zbreak");
-                    break;
+                    if (panelIndex + 1 == yAxisPlaneCounts)
+                    {
+                        var rend = nextObjectForSlice.GetComponent<MeshRenderer>();
+                        rend.material = material;
+                        rend.material.color = Random.ColorHSV();
+                        nextObjectForSlice.name = $"{zSliced.name}_Y_{panelIndex - 1}";
+                        ySlicedMeshes.Add(nextObjectForSlice);
+                    }
+                    else
+                        continue;
                 }
                 else
                 {
@@ -227,7 +227,7 @@ public class MeshSlicer : MonoBehaviour
         }
 
 
-
+        
         #endregion
 
 

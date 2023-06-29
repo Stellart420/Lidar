@@ -4,32 +4,69 @@ using UnityEngine;
 
 public class MeshDetectTest : MonoBehaviour
 {
+    [SerializeField] private Transform[] _cameraPositions;
     [SerializeField] private bool _canCheck = false;
     [SerializeField] private MeshFilter m_Filter;
-    [SerializeField] private MeshRenderer m_renderer;
+
+    [SerializeField] private MeshSlicer _slicer;
+    [SerializeField] private Material _nonWireframeMaterial;
 
     [SerializeField] private Camera _checkMeshCamera;
+    [SerializeField] private Transform _cameraParent;
+    [SerializeField] private int _currentIndex = 0;
 
-    void Update()
+    private List<GameObject> _slicedMeshes;
+    private void Start()
     {
-        if(_canCheck)
+        _checkMeshCamera.transform.parent = _cameraParent;
+    }
+
+    [ContextMenu("Slice")]
+    public void Slice()
+    {
+        _slicedMeshes = _slicer.SliceMesh(m_Filter, _nonWireframeMaterial);
+
+    }
+    [ContextMenu("Next")]
+    public void NextPoint()
+    {
+        var pos = _cameraPositions[_currentIndex].localPosition;
+        var rot = _cameraPositions[_currentIndex].localRotation;
+        ++_currentIndex;
+
+        for (int i = 0; i < _slicedMeshes.Count; ++i)
         {
-            if(IsMeshInCamera(m_Filter))
+
+            var mf = _slicedMeshes[i].GetComponent<MeshFilter>();
+            var render = mf.GetComponent<MeshRenderer>();
+            render.material = _nonWireframeMaterial;
+
+            if (IsMeshInCamera(mf, pos, rot))
             {
-                m_renderer.material.color = Color.green;
+                //mf.GenerateUV(_checkMeshCamera);
+                //var render = mf.GetComponent<MeshRenderer>();
+                //render.material = _nonWireframeMaterial;
+                //render.material.color = Color.white;
+                //render.material.SetTexture("_BaseMap", camData.Texture);
+
+                //mf.name = $"Handled_{mf.name}";
+                //++handledCount;
+
+
+                render.material.color = Color.green;
             }
             else
             {
-                m_renderer.material.color = Color.red;
+                render.material.color = Color.red;
             }
         }
     }
 
 
-    private bool IsMeshInCamera(MeshFilter mFilter)
+    private bool IsMeshInCamera(MeshFilter mFilter, Vector3 position, Quaternion rotation)
     {
-        //_checkMeshCamera.transform.position = camPosition;
-        //_checkMeshCamera.transform.rotation = camRotation;
+        _checkMeshCamera.transform.position = position;
+        _checkMeshCamera.transform.rotation = rotation;
 
         var camPlanes = GeometryUtility.CalculateFrustumPlanes(_checkMeshCamera);
 
