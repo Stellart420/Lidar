@@ -43,7 +43,7 @@ public class MeshDetectTest : MonoBehaviour
 
             if (IsMeshInCamera(mf, pos, rot))
             {
-                //mf.GenerateUV(_checkMeshCamera);
+                mf.GenerateUV(_checkMeshCamera, (1080, 1920));
                 //var render = mf.GetComponent<MeshRenderer>();
                 //render.material = _nonWireframeMaterial;
                 //render.material.color = Color.white;

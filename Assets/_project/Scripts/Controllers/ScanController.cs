@@ -225,7 +225,7 @@ public class ScanController : Singleton<ScanController>
                 var mf = slicedMeshes[i].GetComponent<MeshFilter>();
                 if (IsMeshInCamera(mf, camData.Position, camData.Rotation))
                 {
-                    mf.GenerateUV(_checkMeshCamera);
+                    mf.GenerateUV(_checkMeshCamera, (camData.Texture.width, camData.Texture.height));
                     var render = mf.GetComponent<MeshRenderer>();
                     render.material = _nonWireframeMaterial;
                     render.material.color = Color.white;
