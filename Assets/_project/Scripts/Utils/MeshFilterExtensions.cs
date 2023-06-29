@@ -42,7 +42,7 @@ public static class MeshFilterExtensions
     {
 
         Vector2[] textureCoordinates = new Vector2[geometry.vertices.Length];
-        Vector2 screenSize = new Vector2(textureSize.Item1 , textureSize.Item2);
+        Vector2 screenSize = new Vector2(camera.pixelWidth , camera.pixelHeight);
 
         for (int i = 0; i < geometry.vertices.Length; i++)
         {
