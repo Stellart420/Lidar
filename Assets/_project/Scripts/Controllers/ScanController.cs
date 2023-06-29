@@ -459,6 +459,8 @@ public class ScanController : Singleton<ScanController>
 
         Mesh mesh = new Mesh();
         mesh.CombineMeshes(combine);
+
+        mesh.RecalculateNormals();
         var go = new GameObject("Combined");
         go.transform.parent = _modelViewParent;
         go.transform.localPosition = Vector3.zero;
