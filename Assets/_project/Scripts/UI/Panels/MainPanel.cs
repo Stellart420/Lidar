@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.ARFoundation;
 
 namespace ScanAR.UI
 {
@@ -13,10 +9,21 @@ namespace ScanAR.UI
         [SerializeField] private Button _recordBtn;
         [SerializeField] private Button _stopBtn;
 
+
+        private ARCameraManager arCameraManager;
+
         private void Awake()
         {
             _recordBtn.onClick.AddListener(OnRecordBtnClick);
             _stopBtn.onClick.AddListener(OnStopBtnClick);
+        }
+
+        private void Start()
+        {
+            if (arCameraManager == null)
+            {
+                arCameraManager = FindObjectOfType<ARCameraManager>();
+            }
         }
 
         private void OnDestroy()
