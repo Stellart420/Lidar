@@ -344,18 +344,18 @@ public class ScanController : Singleton<ScanController>
 
     public void Restart()
     {
-        ARSession session = FindObjectOfType<ARSession>();
+        //ARSession session = FindObjectOfType<ARSession>();
 
-        if (session != null)
-        {
-            session.Reset();
-            session.enabled = true;
-        }
+        //if (session != null)
+        //{
+        //    session.Reset();
+        //    session.enabled = true;
+        //}
 
-        if (_arMeshManager.meshes.Count > 0)
-        {
-            _arMeshManager.meshes.Clear();
-        }
+        ////if (_arMeshManager.meshes.Count > 0)
+        ////{
+        ////    _arMeshManager.meshes.Clear();
+        ////}
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
