@@ -42,7 +42,7 @@ public static class MeshFilterExtensions
     private static Vector2[] CalcTextureCoordinates(Mesh geometry, Matrix4x4 modelMatrix, Camera camera, Texture2D texture, Vector2 offset)
     {
         Vector2[] textureCoordinates = new Vector2[geometry.vertices.Length];
-        Vector2 screenSize = new Vector2(texture.width, texture.height);
+        Vector2 screenSize = new Vector2(camera.pixelWidth, camera.pixelHeight);// new Vector2(texture.width, texture.height);
 
         for (int i = 0; i < geometry.vertices.Length; i++)
         {
