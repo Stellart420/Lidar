@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class MeshFilterExtensions
 {
-    public static void GenerateUV(this MeshFilter meshFilter, Camera camera, Texture2D texture)
+    public static void GenerateUV(this MeshFilter meshFilter, Camera camera, Texture2D texture, Vector2 offset)
     {
         Debug.Log("Generate UV");
         Mesh mesh = new Mesh();
@@ -17,29 +17,29 @@ public static class MeshFilterExtensions
         mesh.triangles = faces;
 
 
-        Vector2[] textureCoordinates = CalcTextureCoordinates(mesh, meshFilter.transform.localToWorldMatrix, camera, texture);
+        Vector2[] textureCoordinates = CalcTextureCoordinates(mesh, meshFilter.transform.localToWorldMatrix, camera, texture, offset);
         mesh.uv = textureCoordinates;
         mesh.RecalculateBounds();
         meshFilter.mesh = mesh;
     }
 
-    public static Vector2[] GetGeneratedUV(this MeshFilter meshFilter, Camera camera, Texture2D texture)
-    {
-        Debug.Log("Generate UV");
-        Mesh mesh = new Mesh();
+    //public static Vector2[] GetGeneratedUV(this MeshFilter meshFilter, Camera camera, Texture2D texture)
+    //{
+    //    Debug.Log("Generate UV");
+    //    Mesh mesh = new Mesh();
 
-        Vector3[] vertices = meshFilter.mesh.vertices;
-        Vector3[] normals = meshFilter.mesh.normals;
-        int[] faces = meshFilter.mesh.triangles;
+    //    Vector3[] vertices = meshFilter.mesh.vertices;
+    //    Vector3[] normals = meshFilter.mesh.normals;
+    //    int[] faces = meshFilter.mesh.triangles;
 
-        mesh.vertices = vertices;
-        mesh.normals = normals;
-        mesh.triangles = faces;
+    //    mesh.vertices = vertices;
+    //    mesh.normals = normals;
+    //    mesh.triangles = faces;
 
 
-        return CalcTextureCoordinates(mesh, meshFilter.transform.localToWorldMatrix, camera, texture);
-    }
-    private static Vector2[] CalcTextureCoordinates(Mesh geometry, Matrix4x4 modelMatrix, Camera camera, Texture2D texture)
+    //    return CalcTextureCoordinates(mesh, meshFilter.transform.localToWorldMatrix, camera, texture);
+    //}
+    private static Vector2[] CalcTextureCoordinates(Mesh geometry, Matrix4x4 modelMatrix, Camera camera, Texture2D texture, Vector2 offset)
     {
         Vector2[] textureCoordinates = new Vector2[geometry.vertices.Length];
         Vector2 screenSize = new Vector2(texture.width, texture.height);
@@ -56,8 +56,8 @@ public static class MeshFilterExtensions
             if (texture != null && texture.width > 0 && texture.height > 0)
             {
                 // Проверка на нахождение точки в пределах экрана
-                if (screenPoint.x >= 0 && screenPoint.x <= screenSize.x && screenPoint.y >= 0 && screenPoint.y <= screenSize.y)
-                {
+                //if (screenPoint.x >= 0 && screenPoint.x <= screenSize.x && screenPoint.y >= 0 && screenPoint.y <= screenSize.y)
+                //{
                     // Исправлено: Измените вычисление координаты v для правильного отображения текстуры
                     float u = screenPoint.x / screenSize.x;
                     float v = 1 - screenPoint.y / screenSize.y;
@@ -79,11 +79,11 @@ public static class MeshFilterExtensions
                     {
                         textureCoordinates[i] = Vector2.zero;
                     }
-                }
-                else
-                {
-                    textureCoordinates[i] = Vector2.zero;
-                }
+                //}
+                //else
+                //{
+                //    textureCoordinates[i] = Vector2.zero;
+                //}
             }
             else
             {
