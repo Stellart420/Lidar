@@ -72,7 +72,7 @@ public static class MeshFilterExtensions
                     if (u >= 0 && u <= 1 && v >= 0 && v <= 1)
                     {
                         // Преобразование координаты (0,0) в левый верхний угол текстуры
-                        Vector2 textureCoordinate = new Vector2(u, v);
+                        Vector2 textureCoordinate = new Vector2(u += offset.x, v += offset.y);
                         textureCoordinates[i] = textureCoordinate;
                     }
                     else
