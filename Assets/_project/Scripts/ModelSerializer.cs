@@ -290,7 +290,6 @@ public class ModelSerializer
             if (tex != null)
             {
                 var tex2d = (tex as Texture2D);
-                Debug.Log(tex2d.format);
                 mfData.Texture = tex2d.EncodeToJPG();
             }
 

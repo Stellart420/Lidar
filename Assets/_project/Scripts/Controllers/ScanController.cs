@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 using UnityEngine.XR.ARFoundation;
 using HoloGroup.Networking.Internal.Sockets;
-
+using System.Threading.Tasks;
 
 public class ScanController : Singleton<ScanController>
 {
@@ -44,7 +44,6 @@ public class ScanController : Singleton<ScanController>
     private Quaternion _initRot;
     private Vector2 _uvOffset = Vector2.zero;
 
-    private TCPsocket _socket;
 
     protected override void Awake()
     {
@@ -71,6 +70,7 @@ public class ScanController : Singleton<ScanController>
     private void OnDestroy()
     {
         StopAllCoroutines();
+        base.OnDestroy();
     }
 
     private void Update()
@@ -391,23 +391,62 @@ public class ScanController : Singleton<ScanController>
         if (string.IsNullOrEmpty(name))
             name = "NONAME";
 
+        name = $"{name}_{DateTime.Now.ToShortDateString()}_{DateTime.Now.ToShortTimeString()}";
+
         var serializer = new ModelSerializer();
         var modelData = serializer.Serialize(_modelViewParent.gameObject);
 
-        List<byte> data = new List<byte>();
-        data.AddRange(BitConverter.GetBytes(10));// send model
+        await NetworkBehviour.Instance.Connect();
 
-        var nameData = System.Text.Encoding.UTF8.GetBytes(name);
+        Debug.Log("Connected");
+        await Task.Delay(500);
 
-        data.AddRange(BitConverter.GetBytes(nameData.Length));
-        data.AddRange(nameData);
-        data.AddRange(BitConverter.GetBytes(modelData.Length));
-        data.AddRange(modelData);
+        var helloMessage = new List<byte>();
+        helloMessage.AddRange(BitConverter.GetBytes((int)MessageType.HELLO));
+        helloMessage.AddRange(BitConverter.GetBytes(true));
 
-        var socketBehaviour = new SocketBehaviourMobile();
-        socketBehaviour.DataForSend = data.ToArray();
+        NetworkBehviour.Instance.SendNetworkMessage(helloMessage.ToArray());
 
-        _socket = new TCPsocket(socketBehaviour, ETcpSocketType.Socket, 5200, "192.168.31.49");
+        await Task.Delay(500);
+
+        var infoMessage = new List<byte>();
+        infoMessage.AddRange(BitConverter.GetBytes((int)MessageType.ModelFromPhone));
+        infoMessage.AddRange(BitConverter.GetBytes(0)); // model info
+
+        var namaArray = System.Text.Encoding.UTF8.GetBytes(name);
+        infoMessage.AddRange(BitConverter.GetBytes(namaArray.Length));
+        infoMessage.AddRange(namaArray);
+
+        infoMessage.AddRange(BitConverter.GetBytes(modelData.Length));
+        NetworkBehviour.Instance.SendNetworkMessage(infoMessage.ToArray());
+
+        await Task.Delay(500);
+
+        int sendedBytes = 0;
+
+        do
+        {
+            if (!NetworkBehviour.Instance.IsConnected)
+            {
+                Debug.Log("Disconnected while transfering");
+                break;
+            }
+            var chunckMsg = new List<byte>();
+            chunckMsg.AddRange(BitConverter.GetBytes((int)MessageType.ModelFromPhone));
+            chunckMsg.AddRange(BitConverter.GetBytes(1)); // model data
+
+            var chunckLenght = (modelData.Length - sendedBytes < 90000) ? modelData.Length - sendedBytes : 90000;
+            chunckMsg.AddRange(BitConverter.GetBytes(chunckLenght));
+            chunckMsg.AddRange(new ArraySegment<byte>(modelData, sendedBytes, chunckLenght));
+
+            NetworkBehviour.Instance.SendNetworkMessage(chunckMsg.ToArray());
+            sendedBytes += chunckLenght;
+            Debug.Log($"Sended: {sendedBytes}/{modelData.Length}");
+            await Task.Delay(500);
+        }
+        while (sendedBytes < modelData.Length);
+
+        Debug.Log("Sended ALL");
 
     }
 }

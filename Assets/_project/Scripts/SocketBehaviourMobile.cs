@@ -35,9 +35,18 @@ public class SocketBehaviourMobile : ICustomTCP
         if (!connectSuccessful)
             throw new Exception("Bad connect to server");
 
+        try
+        {
 
-        await networkStream.WriteAsync(DataForSend, 0, DataForSend.Length);
-        await networkStream.FlushAsync();
+            networkStream.Write(DataForSend, 0, DataForSend.Length);
 
+            byte[] answer = new byte[4];
+            networkStream.Read(answer, 0, 4);
+            Debug.Log(BitConverter.ToInt32(answer));
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
     }
 }
