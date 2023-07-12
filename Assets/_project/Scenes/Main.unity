@@ -10418,6 +10418,8 @@ MonoBehaviour:
   _networkPortTCP: 5200
   _operationsPerUpdateCount: 1000
   _applicationServerIp: 192.168.31.49
+  ModelNemTest: 
+  DeserializeMaterial: {fileID: 2100000, guid: 9d286784c905d0446b5b12508f90eabe, type: 2}
 --- !u!4 &1794700482
 Transform:
   m_ObjectHideFlags: 0

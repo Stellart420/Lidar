@@ -397,56 +397,9 @@ public class ScanController : Singleton<ScanController>
         var modelData = serializer.Serialize(_modelViewParent.gameObject);
 
         await NetworkBehviour.Instance.Connect();
-
-        Debug.Log("Connected");
-        await Task.Delay(500);
-
-        var helloMessage = new List<byte>();
-        helloMessage.AddRange(BitConverter.GetBytes((int)MessageType.HELLO));
-        helloMessage.AddRange(BitConverter.GetBytes(true));
-
-        NetworkBehviour.Instance.SendNetworkMessage(helloMessage.ToArray());
-
-        await Task.Delay(500);
-
-        var infoMessage = new List<byte>();
-        infoMessage.AddRange(BitConverter.GetBytes((int)MessageType.ModelFromPhone));
-        infoMessage.AddRange(BitConverter.GetBytes(0)); // model info
-
-        var namaArray = System.Text.Encoding.UTF8.GetBytes(name);
-        infoMessage.AddRange(BitConverter.GetBytes(namaArray.Length));
-        infoMessage.AddRange(namaArray);
-
-        infoMessage.AddRange(BitConverter.GetBytes(modelData.Length));
-        NetworkBehviour.Instance.SendNetworkMessage(infoMessage.ToArray());
-
-        await Task.Delay(500);
-
-        int sendedBytes = 0;
-
-        do
+        await NetworkBehviour.Instance.SendModel(modelData, name, (percent) => 
         {
-            if (!NetworkBehviour.Instance.IsConnected)
-            {
-                Debug.Log("Disconnected while transfering");
-                break;
-            }
-            var chunckMsg = new List<byte>();
-            chunckMsg.AddRange(BitConverter.GetBytes((int)MessageType.ModelFromPhone));
-            chunckMsg.AddRange(BitConverter.GetBytes(1)); // model data
-
-            var chunckLenght = (modelData.Length - sendedBytes < 90000) ? modelData.Length - sendedBytes : 90000;
-            chunckMsg.AddRange(BitConverter.GetBytes(chunckLenght));
-            chunckMsg.AddRange(new ArraySegment<byte>(modelData, sendedBytes, chunckLenght));
-
-            NetworkBehviour.Instance.SendNetworkMessage(chunckMsg.ToArray());
-            sendedBytes += chunckLenght;
-            Debug.Log($"Sended: {sendedBytes}/{modelData.Length}");
-            await Task.Delay(500);
-        }
-        while (sendedBytes < modelData.Length);
-
-        Debug.Log("Sended ALL");
-
+            Debug.Log($"Percent: {percent} %");
+        });
     }
 }
