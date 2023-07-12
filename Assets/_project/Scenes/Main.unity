@@ -9021,8 +9021,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1604130294}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 327.34378, y: 488.64157, z: -6.650416}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9031,8 +9031,8 @@ Transform:
   - {fileID: 1148173011}
   - {fileID: 1354933148}
   - {fileID: 776654206}
-  m_Father: {fileID: 0}
-  m_RootOrder: 18
+  m_Father: {fileID: 1723227217}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1613078041
 GameObject:
@@ -9925,6 +9925,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1604130295}
   - {fileID: 1151388028786335621}
   - {fileID: 1434523039}
   m_Father: {fileID: 1979254587}
@@ -10417,7 +10418,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _networkPortTCP: 5200
   _operationsPerUpdateCount: 1000
-  _applicationServerIp: '84.201.136.179 '
+  _applicationServerIp: 84.201.136.179
   ModelNemTest: 
   DeserializeMaterial: {fileID: 2100000, guid: 9d286784c905d0446b5b12508f90eabe, type: 2}
 --- !u!4 &1794700482
@@ -10433,7 +10434,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 19
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1810299180
 GameObject:
