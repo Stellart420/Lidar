@@ -8,7 +8,6 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 using UnityEngine.XR.ARFoundation;
-using HoloGroup.Networking.Internal.Sockets;
 using System.Threading.Tasks;
 
 public class ScanController : Singleton<ScanController>

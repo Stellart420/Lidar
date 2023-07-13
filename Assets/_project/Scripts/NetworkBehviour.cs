@@ -152,7 +152,7 @@ public class NetworkBehviour : MonoBehaviour
             sendedBytes += chunckLenght;
             Debug.Log($"Sended: {sendedBytes}/{modelData.Length}");
             onPercentChange?.Invoke(((float)sendedBytes / (float)modelData.Length) * 100);
-            await Task.Delay(500);
+            await Task.Delay(10);
         }
         while (sendedBytes < modelData.Length);
 
