@@ -43,7 +43,7 @@ public class ScanController : Singleton<ScanController>
     private Quaternion _initRot;
     private Vector2 _uvOffset = Vector2.zero;
 
-
+    private VoiceChatMultiplayer.PlayerChatNetwork _clientPlayerChat;
     protected override void Awake()
     {
         base.Awake();
@@ -232,7 +232,7 @@ public class ScanController : Singleton<ScanController>
     IEnumerator Converting()
     {
         yield return null;
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && !UNITY_STANDALONE
         var model = FindObjectOfType<ThirdPersonCamera>();
         if (model != null)
             model.IsInteractable = false;
@@ -400,5 +400,42 @@ public class ScanController : Singleton<ScanController>
         {
             Debug.Log($"Percent: {percent} %");
         });
+
+        Unity.Netcode.NetworkManager.Singleton.OnClientStarted += NetworkManager_OnClientStarted;
+
+#if !UNITY_EDITOR
+        Unity.Netcode.NetworkManager.Singleton.OnServerStarted += Singleton_OnServerStarted;
+        Unity.Netcode.NetworkManager.Singleton.OnClientConnectedCallback += Singleton_OnClientConnectedCallback;
+
+        Unity.Netcode.NetworkManager.Singleton.StartHost();
+#else
+        Unity.Netcode.NetworkManager.Singleton.StartClient();
+#endif
+
+    }
+
+    private void Singleton_OnClientConnectedCallback(ulong obj)
+    {
+        Debug.Log("Client Connected");
+    }
+
+    private void Singleton_OnServerStarted()
+    {
+        Debug.Log("Server Started");
+    }
+
+    private void NetworkManager_OnClientStarted()
+    {
+        Debug.Log("Client Started");
+    }
+
+    public void SetupPlayerChat(VoiceChatMultiplayer.PlayerChatNetwork clientPlayer)
+    {
+        _clientPlayerChat = clientPlayer;
+    }
+
+    public void SetActiveCallOutput(bool active)
+    {
+        _clientPlayerChat.StartCall(active);
     }
 }
