@@ -16,13 +16,21 @@ public class CloudPointTest : MonoBehaviour
         _pointsCloud.pointCloudsChanged += _pointsCloud_pointCloudsChanged;
     }
 
+    public void StoptScan()
+    {
+        _pointsCloud.pointCloudsChanged -= _pointsCloud_pointCloudsChanged;
+    }
+
     private void _pointsCloud_pointCloudsChanged(ARPointCloudChangedEventArgs obj)
     {
+        Debug.Log($"add: {obj.added.Count}   update: {obj.updated.Count}");
+
         foreach(var added in obj.added)
         {
             var behaviour = added.GetComponent<CloudPointBehaviour>();
             if (behaviour != null)
             {
+                Debug.Log($"add: {added.trackableId.ToString()}");
                 _clouds.Add(added.trackableId, behaviour);
                 behaviour.Initialize(_pointPrefab);
                 behaviour.UpdatePoints(added.positions);
@@ -33,8 +41,9 @@ public class CloudPointTest : MonoBehaviour
 
         foreach (var updated in obj.updated)
         {
+            Debug.Log($"updated: {updated.trackableId.ToString()}");
 
-            if(_clouds.TryGetValue(updated.trackableId, out CloudPointBehaviour behaviour))
+            if (_clouds.TryGetValue(updated.trackableId, out CloudPointBehaviour behaviour))
             {
                 behaviour.UpdatePoints(updated.positions);
             }
