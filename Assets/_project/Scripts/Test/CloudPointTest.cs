@@ -11,7 +11,7 @@ public class CloudPointTest : MonoBehaviour
 
     private Dictionary<TrackableId, CloudPointBehaviour> _clouds = new Dictionary<TrackableId, CloudPointBehaviour>();
 
-    private void Start()
+    public void StartScan()
     {
         _pointsCloud.pointCloudsChanged += _pointsCloud_pointCloudsChanged;
     }
