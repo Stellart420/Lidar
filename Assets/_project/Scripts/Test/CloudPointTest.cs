@@ -48,7 +48,18 @@ public class CloudPointTest : MonoBehaviour
                 behaviour.UpdatePoints(updated.positions);
             }
             else
-                Debug.LogError("Can not find behaviour component");
+            {
+                var behaviour1 = updated.GetComponent<CloudPointBehaviour>();
+                if (behaviour1 != null)
+                {
+                    Debug.Log($"add updated: {updated.trackableId.ToString()}");
+                    _clouds.Add(updated.trackableId, behaviour1);
+                    behaviour1.Initialize(_pointPrefab);
+                    behaviour1.UpdatePoints(updated.positions);
+                }
+                else
+                    Debug.LogError("Can not find behaviour component in update");
+            }
         }
 
         if (obj.removed.Count > 0)
