@@ -29,6 +29,9 @@ public class CloudPointBehaviour : MonoBehaviour
             if (_pointsView.ContainsKey(position))
                 continue;
 
+            if (created > 10)
+                break;
+
             var newPoint = Instantiate(_pointPrefab, _transform);
             newPoint.localPosition = position;
             newPoint.localScale = Vector3.one * 0.01f;
