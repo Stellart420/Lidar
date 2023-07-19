@@ -847,3 +847,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pointsCloud: {fileID: 2143161555}
+  _pointPrefab: {fileID: 9067476888734385483, guid: 96da87e61bb328845a54928bb149b055,
+    type: 3}
