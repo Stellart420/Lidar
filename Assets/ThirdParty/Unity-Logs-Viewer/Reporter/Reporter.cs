@@ -330,7 +330,6 @@ public class Reporter : MonoBehaviour
     public bool Initialized = false;
     public void Initialize()
     {
-        Debug.Log($"Init {gameObject.GetInstanceID()}");
         if (!created)
         {
             try
