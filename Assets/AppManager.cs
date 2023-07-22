@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ public class AppManager : MonoBehaviour
     public static AppManager Instance { get; private set; }
 
     [SerializeField] public MenuWindow menuUI;
+    [SerializeField] public ModelListWindow modelListWindow;
     [SerializeField] public GameObject downloadingWindow;
     [SerializeField] public Material DeserializeMaterial;
     [SerializeField] public GameObject ModelListItem;

@@ -9,6 +9,11 @@ public class DownloadingWindow : MonoBehaviour
 
     private bool _listenForModelReciever;
 
+    private void OnEnable()
+    {
+        percentsText.text = "0";
+    }
+
     private void Update()
     {
         if (NetworkBehviour.Instance.ModelReceiver != null)
@@ -24,7 +29,9 @@ public class DownloadingWindow : MonoBehaviour
             float y = NetworkBehviour.Instance.ModelReceiver.FullModelLenght;
             float value = (x / y) * 100f;
             value = Mathf.RoundToInt(value);
-            percentsText.text = value.ToString();
+
+            if (value > 0)
+                percentsText.text = value.ToString();
         }
         else
             _listenForModelReciever = false;

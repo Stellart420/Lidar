@@ -1654,6 +1654,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuUI: {fileID: 501460580526663532}
+  modelListWindow: {fileID: 1759455856}
   downloadingWindow: {fileID: 1860285911}
   DeserializeMaterial: {fileID: 2100000, guid: c30c21a7c3be0814ba3b00fcc1e14f4f, type: 2}
   ModelListItem: {fileID: 7611199565559911872, guid: 3168ab174dc70c14cb84f739391e020f, type: 3}
@@ -2458,8 +2459,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: SettingsWindow, Assembly-CSharp
+      - m_Target: {fileID: 1759455856}
+        m_TargetAssemblyTypeName: ModelListWindow, Assembly-CSharp
         m_MethodName: OnCloseCLick
         m_Mode: 1
         m_Arguments:
@@ -14068,7 +14069,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 47.000004, y: 2936}
-  m_SizeDelta: {x: 500, y: 205}
+  m_SizeDelta: {x: 500, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &501460580526663522
 MonoBehaviour:

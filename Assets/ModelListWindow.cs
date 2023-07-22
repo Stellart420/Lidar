@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,14 +8,37 @@ public class ModelListWindow : MonoBehaviour
 {
     [SerializeField] private Transform content;
 
+    public bool ListenForModelReciever { get; set; }
+
     private void OnEnable()
     {
+        ClearList();
+        EnableButtons(true);
         FillModelList();
     }
 
     public void OnCloseCLick()
     {
         gameObject.SetActive(false);
+    }
+
+    public void EnableButtons(bool value)
+    {
+        List<Button> buttons = AppManager.Instance.modelListWindow.GetComponentsInChildren<Button>().ToList();
+
+        foreach (var button in buttons)
+        {
+            button.interactable = value;
+        }
+    }
+
+    private void ClearList()
+    {
+        for (int j = 0; j < content.childCount; j++)
+        {
+            Destroy(content.GetChild(j).gameObject);
+        }
+        content.DetachChildren();
     }
 
     private async void FillModelList()
@@ -23,46 +48,22 @@ public class ModelListWindow : MonoBehaviour
         NetworkBehviour.Instance.OnModelListReceived += (list) =>
         {
             NetworkBehviour.Instance.OnModelListReceived = null;
-            for (int j = 0; j < content.childCount; j++)
-            {
-                Destroy(content.GetChild(j).gameObject);
-            }
-            content.DetachChildren();
+            ClearList();
 
             var i = 0;
             list.Reverse();
             foreach (var model in list)
             {
                 var go = Instantiate(AppManager.Instance.ModelListItem, content);
+                
+                // Init model item
                 string name = list[i];
-                go.GetComponentInChildren<TMP_Text>().text = name;
-                go.GetComponentInChildren<Button>().onClick.AddListener(delegate { GetModel(name); });
+                go.GetComponent<ModelListItem>().Name = name;
+
                 i++;
             }
         };
 
         NetworkBehviour.Instance.SendGetModelList();
-    }
-
-    public void GetModel(string name)
-    {
-        NetworkBehviour.Instance.OnModelReceived += async (byte[] d) =>
-        {
-            Debug.Log($"Received model {d.Length}");
-            NetworkBehviour.Instance.OnModelReceived = null;
-
-            await new WaitForUpdate();
-
-            var serializer = new ModelSerializer();
-            serializer.MaterialForDeserialize = AppManager.Instance.DeserializeMaterial;
-
-            if (AppManager.Instance.LoadedModel != null)
-                Destroy(AppManager.Instance.LoadedModel);
-
-            AppManager.Instance.LoadedModel = serializer.Deserialize(d, 0);
-        };
-
-        OnCloseCLick();
-        NetworkBehviour.Instance.GetModel(name);
     }
 }
