@@ -393,6 +393,10 @@ public class NetworkBehviour : MonoBehaviour
         SendConnectToCall();
     }
 
+    public async void EndCall()
+    {
+        OnConnectedToCall?.Invoke(false);
+    }
 
     private void SendInitCall()
     {
