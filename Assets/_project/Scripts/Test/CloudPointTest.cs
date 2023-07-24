@@ -19,6 +19,11 @@ public class CloudPointTest : MonoBehaviour
     public void StoptScan()
     {
         _pointsCloud.pointCloudsChanged -= _pointsCloud_pointCloudsChanged;
+
+        foreach(var cloud in _clouds)
+        {
+            cloud.Value.StartCreatePoints();
+        }
     }
 
     private void _pointsCloud_pointCloudsChanged(ARPointCloudChangedEventArgs obj)

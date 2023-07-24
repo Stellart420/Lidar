@@ -9,6 +9,7 @@ public class CloudPointBehaviour : MonoBehaviour
     private Transform _transform;
     private Transform _pointPrefab;
 
+    private List<Vector3> _positions = new List<Vector3>();
     private Dictionary<Vector3, GameObject> _pointsView = new Dictionary<Vector3, GameObject>();
 
 
@@ -23,25 +24,47 @@ public class CloudPointBehaviour : MonoBehaviour
         if (positions == null || !positions.HasValue)
             return;
 
-        int created = 0;
-        foreach(var position in positions)
+        _positions = new List<Vector3>();
+
+        foreach (var position in positions)
         {
             if (_pointsView.ContainsKey(position))
                 continue;
 
-            if (created > 10)
-                break;
-
-            var newPoint = Instantiate(_pointPrefab, _transform);
-            newPoint.localPosition = position;
-            newPoint.localScale = Vector3.one * 0.01f;
-
-            _pointsView.Add(position, newPoint.gameObject);
-
-            ++created;
+            _positions.Add(position);
         }
 
-        Debug.Log($"PointsCount: {created}");
 
+
+    }
+
+    public void StartCreatePoints()
+    {
+        Debug.Log($"PointsCount: {_positions.Count}");
+
+        StartCoroutine(CreatePositionsProcess());
+
+    }
+
+    private IEnumerator CreatePositionsProcess()
+    {
+        int allCreated = 0;
+
+        while (allCreated < _positions.Count)
+        {
+            int offset = (allCreated + 10 >= _positions.Count) ? _positions.Count - allCreated : 10;
+            for (int i = allCreated; i < allCreated + offset; i++)
+            {
+                var newPoint = Instantiate(_pointPrefab, _transform);
+                newPoint.localPosition = _positions[i];
+                newPoint.localScale = Vector3.one * 0.01f;
+
+                _pointsView.Add(_positions[i], newPoint.gameObject);
+            }
+
+            allCreated += 10;
+
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }
