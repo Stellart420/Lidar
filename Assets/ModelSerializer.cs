@@ -19,6 +19,7 @@ public class ModelSerializer
         public Vector3[] Normals;
         public Vector2[] UV;
         public byte[] Texture = new byte[0];
+        public string TextureHash = string.Empty;
 
         public Texture2D Texture2D
         {
@@ -328,6 +329,20 @@ public class ModelSerializer
 
         parentTransform.position = new Vector3(parentTransform.position.x, parentTransform.position.y + 1.55f, parentTransform.position.z);
 
+        Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
+        var cryptograph = System.Security.Cryptography.MD5.Create();
+        foreach (var mfData in mfDatas)
+        {
+            var hash = cryptograph.ComputeHash(mfData.Texture);
+            var asString = Convert.ToBase64String(hash);
+            mfData.TextureHash = asString;
+
+            if (_textures.ContainsKey(asString))
+                continue;
+
+            _textures.Add(asString, mfData.Texture2D);
+        }
+
         foreach (var mfData in mfDatas)
         {
             var child = new GameObject();
@@ -349,9 +364,12 @@ public class ModelSerializer
             var mr = child.AddComponent<MeshRenderer>();
             mr.sharedMaterial = MaterialForDeserialize;
 
-            var tex = mfData.Texture2D;
-            if (tex != null)
-                mr.material.SetTexture("_BaseMap", tex);
+            if (!string.IsNullOrEmpty(mfData.TextureHash))
+            {
+                var tex = _textures[mfData.TextureHash];
+                if (tex != null)
+                    mr.material.SetTexture("_BaseMap", tex);
+            }
         }
 
         return parent;
