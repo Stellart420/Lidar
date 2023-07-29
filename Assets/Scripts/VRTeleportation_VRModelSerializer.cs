@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-public class ModelSerializer
+public class VRTeleportation_VRModelSerializer
 {
     public Material MaterialForDeserialize;
 

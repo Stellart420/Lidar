@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Telepathy;
 using UnityEngine;
 
-public class NetworkBehviour : MonoBehaviour
+public class VRTeleportation_NetworkBehviour : MonoBehaviour
 {
-    public static NetworkBehviour Instance;
+    public static VRTeleportation_NetworkBehviour Instance;
 
     public Action<byte[]> OnModelReceived;
     public Action<List<string>> OnModelListReceived;

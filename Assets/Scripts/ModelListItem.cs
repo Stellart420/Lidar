@@ -48,13 +48,13 @@ public class ModelListItem : MonoBehaviour
 
     private void Update()
     {
-        if (NetworkBehviour.Instance.ModelReceiver != null && _listenForModelReciever)
+        if (VRTeleportation_NetworkBehviour.Instance.ModelReceiver != null && _listenForModelReciever)
         {
-            NetworkBehviour.Instance.OnModelReceived += OnModelSaved;
-            NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError += OnModelSavedError;
+            VRTeleportation_NetworkBehviour.Instance.OnModelReceived += OnModelSaved;
+            VRTeleportation_NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError += OnModelSavedError;
 
-            float x = NetworkBehviour.Instance.ModelReceiver.FullModelOffset;
-            float y = NetworkBehviour.Instance.ModelReceiver.FullModelLenght;
+            float x = VRTeleportation_NetworkBehviour.Instance.ModelReceiver.FullModelOffset;
+            float y = VRTeleportation_NetworkBehviour.Instance.ModelReceiver.FullModelLenght;
             float value = x / y;
 
             if (value > 0)
@@ -106,10 +106,10 @@ public class ModelListItem : MonoBehaviour
 
     private void SaveModel()
     {
-        NetworkBehviour.Instance.OnModelReceived += async (byte[] d) =>
+        VRTeleportation_NetworkBehviour.Instance.OnModelReceived += async (byte[] d) =>
         {
             Debug.Log($"Saved model {d.Length}");
-            NetworkBehviour.Instance.OnModelReceived = null;
+            VRTeleportation_NetworkBehviour.Instance.OnModelReceived = null;
 
             await new WaitForUpdate();
 
@@ -117,7 +117,7 @@ public class ModelListItem : MonoBehaviour
         };
 
         _listenForModelReciever = true;
-        NetworkBehviour.Instance.GetModel(Name);
+        VRTeleportation_NetworkBehviour.Instance.GetModel(Name);
     }
 
     private IEnumerator WriteFileAndNotify(byte[] _data)
@@ -133,8 +133,8 @@ public class ModelListItem : MonoBehaviour
     {
         _listenForModelReciever = false;
 
-        NetworkBehviour.Instance.OnModelReceived -= OnModelSaved;
-        NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OnModelSavedError;
+        VRTeleportation_NetworkBehviour.Instance.OnModelReceived -= OnModelSaved;
+        VRTeleportation_NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OnModelSavedError;
     }
 
     private void OnModelSavedError()
@@ -142,8 +142,8 @@ public class ModelListItem : MonoBehaviour
         modelDownloadingImage.fillAmount = 0;
         _listenForModelReciever = false;
 
-        NetworkBehviour.Instance.OnModelReceived -= OnModelSaved;
-        NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OnModelSavedError;
+        VRTeleportation_NetworkBehviour.Instance.OnModelReceived -= OnModelSaved;
+        VRTeleportation_NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OnModelSavedError;
     }
 
     private void DeleteModel()
@@ -158,14 +158,14 @@ public class ModelListItem : MonoBehaviour
 
     private void DownloadModel()
     {
-        NetworkBehviour.Instance.OnModelReceived += async (byte[] d) =>
+        VRTeleportation_NetworkBehviour.Instance.OnModelReceived += async (byte[] d) =>
         {
             Debug.Log($"Received model {d.Length}");
-            NetworkBehviour.Instance.OnModelReceived = null;
+            VRTeleportation_NetworkBehviour.Instance.OnModelReceived = null;
 
             await new WaitForUpdate();
 
-            var serializer = new ModelSerializer();
+            var serializer = new VRTeleportation_VRModelSerializer();
             serializer.MaterialForDeserialize = AppManager.Instance.DeserializeMaterial;
 
             if (AppManager.Instance.LoadedModel != null)
@@ -174,12 +174,12 @@ public class ModelListItem : MonoBehaviour
             AppManager.Instance.LoadedModel = serializer.Deserialize(d, 0);
         };
 
-        NetworkBehviour.Instance.GetModel(Name);
+        VRTeleportation_NetworkBehviour.Instance.GetModel(Name);
     }
 
     private void GetSavedModel()
     {
-        var serializer = new ModelSerializer();
+        var serializer = new VRTeleportation_VRModelSerializer();
         serializer.MaterialForDeserialize = AppManager.Instance.DeserializeMaterial;
 
         if (AppManager.Instance.LoadedModel != null)

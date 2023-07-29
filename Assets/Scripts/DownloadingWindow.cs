@@ -16,17 +16,17 @@ public class DownloadingWindow : MonoBehaviour
 
     private void Update()
     {
-        if (NetworkBehviour.Instance.ModelReceiver != null)
+        if (VRTeleportation_NetworkBehviour.Instance.ModelReceiver != null)
         {
             if (!_listenForModelReciever)
             {
-                NetworkBehviour.Instance.OnModelReceived += OpenSuccessWindow;
-                NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError += OpenErrorWindow;
+                VRTeleportation_NetworkBehviour.Instance.OnModelReceived += OpenSuccessWindow;
+                VRTeleportation_NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError += OpenErrorWindow;
                 _listenForModelReciever = true;
             }
 
-            float x = NetworkBehviour.Instance.ModelReceiver.FullModelOffset;
-            float y = NetworkBehviour.Instance.ModelReceiver.FullModelLenght;
+            float x = VRTeleportation_NetworkBehviour.Instance.ModelReceiver.FullModelOffset;
+            float y = VRTeleportation_NetworkBehviour.Instance.ModelReceiver.FullModelLenght;
             float value = (x / y) * 100f;
             value = Mathf.RoundToInt(value);
 
@@ -39,16 +39,16 @@ public class DownloadingWindow : MonoBehaviour
 
     private void OpenSuccessWindow(byte[] d)
     {
-        NetworkBehviour.Instance.OnModelReceived -= OpenSuccessWindow;
-        NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OpenErrorWindow;
+        VRTeleportation_NetworkBehviour.Instance.OnModelReceived -= OpenSuccessWindow;
+        VRTeleportation_NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OpenErrorWindow;
         successWindow.SetActive(true);
         gameObject.SetActive(false);
     }
 
     private void OpenErrorWindow()
     {
-        NetworkBehviour.Instance.OnModelReceived -= OpenSuccessWindow;
-        NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OpenErrorWindow;
+        VRTeleportation_NetworkBehviour.Instance.OnModelReceived -= OpenSuccessWindow;
+        VRTeleportation_NetworkBehviour.Instance.ModelReceiver.OnModelReceivedError -= OpenErrorWindow;
         errorWindow.SetActive(true);
         gameObject.SetActive(false);
     }

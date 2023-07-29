@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Caller : MonoBehaviour
+public class VRTeleportation_Caller : MonoBehaviour
 {
     public Action<byte[], int> OnSamplePartRecorded;
 
@@ -26,9 +26,9 @@ public class Caller : MonoBehaviour
 
     private void Start()
     {
-        OnSamplePartRecorded += (d, s) => { NetworkBehviour.Instance.SendCallFrame(d,s, _outgoingChunkNumber++); };
+        OnSamplePartRecorded += (d, s) => { VRTeleportation_NetworkBehviour.Instance.SendCallFrame(d,s, _outgoingChunkNumber++); };
 
-        NetworkBehviour.Instance.OnAudioFrameReceived += (chunkNumber, channels, frame) =>
+        VRTeleportation_NetworkBehviour.Instance.OnAudioFrameReceived += (chunkNumber, channels, frame) =>
         {
             if(chunkNumber > _incomingChunkNumber)
             {
@@ -37,12 +37,12 @@ public class Caller : MonoBehaviour
             }
         };
 
-        NetworkBehviour.Instance.OnIncomingCall += () =>
+        VRTeleportation_NetworkBehviour.Instance.OnIncomingCall += () =>
         {
             _acceptCallUi.SetActive(true);
         };
 
-        NetworkBehviour.Instance.OnConnectedToCall += (active) =>
+        VRTeleportation_NetworkBehviour.Instance.OnConnectedToCall += (active) =>
         {
             if (active)
                 StartRecord();

@@ -43,11 +43,11 @@ public class ModelListWindow : MonoBehaviour
 
     private async void FillModelList()
     {
-        await NetworkBehviour.Instance.Connect();
+        await VRTeleportation_NetworkBehviour.Instance.Connect();
 
-        NetworkBehviour.Instance.OnModelListReceived += (list) =>
+        VRTeleportation_NetworkBehviour.Instance.OnModelListReceived += (list) =>
         {
-            NetworkBehviour.Instance.OnModelListReceived = null;
+            VRTeleportation_NetworkBehviour.Instance.OnModelListReceived = null;
             ClearList();
 
             var i = 0;
@@ -64,6 +64,6 @@ public class ModelListWindow : MonoBehaviour
             }
         };
 
-        NetworkBehviour.Instance.SendGetModelList();
+        VRTeleportation_NetworkBehviour.Instance.SendGetModelList();
     }
 }
