@@ -57,6 +57,12 @@ public class VRTeleportation_NetworkBehviour : MonoBehaviour
         _networkName = $"User{UnityEngine.Random.Range(1, 9999999)}";
     }
 
+    private async void Start()
+    {
+        await Connect();
+        SendGetModelList();
+    }
+
     private void Update()
     {
         _clientTCP.Tick(_operationsPerUpdateCount);
@@ -371,6 +377,8 @@ public class VRTeleportation_NetworkBehviour : MonoBehaviour
 
     public async void InitCall()
     {
+        FindObjectOfType<VRTeleportation_Caller>().connectingCallUi.SetActive(true);
+
         _clientUDP.Connect(_applicationServerIp, (ushort)(_networkPortTCP + 1));
 
         while (_udpId == 0)
@@ -383,6 +391,8 @@ public class VRTeleportation_NetworkBehviour : MonoBehaviour
 
     public async void ConnectToCall()
     {
+        FindObjectOfType<VRTeleportation_Caller>().connectingCallUi.SetActive(true);
+
         _clientUDP.Connect(_applicationServerIp, (ushort)(_networkPortTCP + 1));
 
         while (_udpId == 0)

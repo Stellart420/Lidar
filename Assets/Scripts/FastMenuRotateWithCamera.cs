@@ -20,6 +20,16 @@ public class FastMenuRotateWithCamera : MonoBehaviour
         coroutine = LerpWindow(transform.position, transform.rotation);
     }
 
+    private void OnEnable()
+    {
+        OnAlignWindow();
+    }
+
+    private void OnDisable()
+    {
+        windowMoving = false;
+    }
+
     void LateUpdate()
     {
         Transform rigCamera = Camera.main.transform;
@@ -66,5 +76,16 @@ public class FastMenuRotateWithCamera : MonoBehaviour
         }
 
         windowMoving = false;
+    }
+
+    private void OnAlignWindow()
+    {
+        var rigCamera = Camera.main.transform;
+        var cameraProjection = new Vector3(rigCamera.position.x, transform.position.y, rigCamera.position.z);
+        var cameraVector = Vector3.ProjectOnPlane(rigCamera.forward, Vector3.up).normalized;
+        var newPosition = cameraProjection + cameraVector * RigDistance;
+
+        transform.rotation = new Quaternion(0f, rigCamera.rotation.y, 0f, rigCamera.rotation.w);
+        transform.position = new Vector3(newPosition.x, rigCamera.position.y, newPosition.z);
     }
 }

@@ -7,7 +7,9 @@ public class VRTeleportation_Caller : MonoBehaviour
 {
     public Action<byte[], int> OnSamplePartRecorded;
 
-    [SerializeField] private GameObject _acceptCallUi;
+    [SerializeField] private GameObject acceptCallUi;
+    [SerializeField] private GameObject startCallUi;
+    public GameObject connectingCallUi;
     [SerializeField] private AudioSource _output;
     [SerializeField] private float _chunkLenght = 0.1f;
 
@@ -39,15 +41,24 @@ public class VRTeleportation_Caller : MonoBehaviour
 
         VRTeleportation_NetworkBehviour.Instance.OnIncomingCall += () =>
         {
-            _acceptCallUi.SetActive(true);
+            acceptCallUi.SetActive(true);
         };
 
         VRTeleportation_NetworkBehviour.Instance.OnConnectedToCall += (active) =>
         {
             if (active)
+            {
                 StartRecord();
+                connectingCallUi.SetActive(false);
+                startCallUi.SetActive(true);
+            }
             else
+            {
                 StopRecord();
+                connectingCallUi.SetActive(false);
+                acceptCallUi.SetActive(false);
+                startCallUi.SetActive(false);
+            }
         };
     }
 
@@ -78,6 +89,7 @@ public class VRTeleportation_Caller : MonoBehaviour
             StopCoroutine(_playerRoutine);
             _playerRoutine = null;
         }
+        Debug.Log("Stop Recording");
     }
 
     private void FixedUpdate()
