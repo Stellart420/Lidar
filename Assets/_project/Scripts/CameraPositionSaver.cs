@@ -1,20 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.XR.ARFoundation;
 
 public class CameraPositionSaver : Singleton<CameraPositionSaver>
 {
+    [SerializeField] private int _textureLowingDevider = 2;
     private Coroutine _savingProcesss;
     private Coroutine _getCameraTextureProcess;
 
-    public Dictionary<int, ScanData> SavedCameraData = new Dictionary<int, ScanData>();
+    public List<ScanData> SavedCameraData = new List<ScanData>();
     private int _currentId = 0;
 
     private void Start()
     {
-        TextureGetter.Instance.Initialize(OnTextureGetted);
+        VRTeleportation_TextureGetter.Instance.Initialize(OnTextureGetted, _textureLowingDevider);
     }
 
     private void OnDisable()
@@ -44,45 +43,61 @@ public class CameraPositionSaver : Singleton<CameraPositionSaver>
     {
         while(true)
         {
-            yield return new WaitForSeconds(1f);
-            //CheckCameraForSave();
-            SavedCameraData.Add(_currentId, new ScanData() { Id = _currentId, Position = transform.position, Rotation = transform.rotation });
-            TextureGetter.Instance.GetImageAsync(_currentId);
+            //yield return new WaitForSeconds(.5f);
+            yield return new WaitForEndOfFrame();
+            CheckCameraForSave();
+            //SavedCameraData.Add(new ScanData() { Id = _currentId, Position = transform.position, Rotation = transform.rotation });
+            //TextureGetter.Instance.GetImageAsync(_currentId);
 
-            ++_currentId;
+            //++_currentId;
         }
     }
 
     private void CheckCameraForSave()
     {
-        float difference = float.MaxValue;
-        foreach (var camData in SavedCameraData)
+        Vector3 currentPosition = transform.position;
+        Quaternion currentRotation = transform.rotation;
+
+        bool shouldSave = true;
+
+        foreach (var savedCameraData in SavedCameraData)
         {
-            // Проверяем разницу в повороте и позиции камеры
-            float rotationDifference = Quaternion.Angle(camData.Value.Rotation, transform.rotation);
-            float positionDifference = Vector3.Distance(camData.Value.Position, transform.position);
+            float positionDifference = Vector3.Distance(savedCameraData.Position, currentPosition);
+            float rotationDifference = Quaternion.Angle(savedCameraData.Rotation, currentRotation);
 
-            var dif = rotationDifference + positionDifference;
-
-            if (difference > dif)
+            if (positionDifference < .5f && rotationDifference < 15f)
             {
-                difference = dif;
+                shouldSave = false;
+                break; // Если хотя бы с одной камеры условие выполняется, выходим из цикла и не сохраняем новые данные
             }
         }
 
-        if (difference > .5f)
+        if (shouldSave)
         {
-            SavedCameraData.Add(_currentId, new ScanData() { Id = _currentId, Position = transform.position, Rotation = transform.rotation });
-            TextureGetter.Instance.GetImageAsync(_currentId);
+            Debug.Log($"Camera Save: {transform.position} - {transform.rotation}");
+            SavedCameraData.Add(new ScanData() { Id = _currentId, Position = currentPosition, Rotation = currentRotation });
+            VRTeleportation_TextureGetter.Instance.GetImageAsync(_currentId);
 
-            ++_currentId;
+            _currentId++;
         }
-        Debug.Log($"Cam Dif: {difference}");
+        else
+        {
+            //Debug.Log("Camera data not saved.");
+        }
     }
 
     private void OnTextureGetted(Texture2D texture, int id)
     {
-        SavedCameraData[id].Texture = texture;
+        var offset = (int)((texture.width - 888 / _textureLowingDevider) / 2);
+
+        var cuttedColors = texture.GetPixels(offset, 0, 888 / _textureLowingDevider, 1920 / _textureLowingDevider, 0);
+        var cuttedTexture = new Texture2D(888/ _textureLowingDevider, 1920/ _textureLowingDevider, texture.format, false);
+
+        cuttedTexture.SetPixels(cuttedColors);
+        cuttedTexture.Apply();
+
+        SavedCameraData[id].Texture = cuttedTexture;
+        Debug.Log($"Cameras: {SavedCameraData.Count}");
     }
 
 }
